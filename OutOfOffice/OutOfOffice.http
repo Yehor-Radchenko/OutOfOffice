@@ -1,0 +1,6 @@
+@OutOfOffice_HostAddress = http://localhost:5261
+
+GET {{OutOfOffice_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
