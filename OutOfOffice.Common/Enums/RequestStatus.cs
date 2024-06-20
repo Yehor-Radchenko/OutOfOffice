@@ -4,9 +4,13 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OutOfOffice.DAL.Models
+namespace OutOfOffice.Common.Enums
 {
-    internal class Subdivision
+    public enum RequestStatus
     {
+        New,
+        Submited,
+        Canceled,
+        Approved
     }
 }

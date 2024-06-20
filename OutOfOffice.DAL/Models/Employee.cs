@@ -1,11 +1,6 @@
 ﻿using OutOfOffice.Common.Enums;
-using System;
-using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace OutOfOffice.DAL.Models
 {
@@ -21,19 +16,20 @@ namespace OutOfOffice.DAL.Models
         public string Subdivision { get; set; } = null!;
 
         [Required]
-        [ForeignKey("Position")]
+        [ForeignKey(nameof(Position))]
         public int PositionId { get; set; }
 
         [Required]
         public EmployeeStatus Status { get; set; }
 
         [Required]
-        [ForeignKey("EmployeePartner")]
+        [ForeignKey(nameof(EmployeePartner))]
         public int EmployeePartnerId { get; set; }
 
         [Required]
         public int OutOfOfficeBalance { get; set; }
 
+        [ForeignKey(nameof(Photo))]
         public int PhotoId { get; set; }
 
         public Photo Photo { get; set; } = null!;

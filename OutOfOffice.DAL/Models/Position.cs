@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OutOfOffice.DAL.Models
 {
@@ -8,6 +9,7 @@ namespace OutOfOffice.DAL.Models
         public int Id { get; set; }
 
         [Required]
-        public string Name { get; set; }
+        [Index(IsUnique = true)]
+        public string Name { get; set; } = null!;
     }
 }
