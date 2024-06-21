@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using OutOfOffice.DAL.Context;
 
@@ -11,9 +12,11 @@ using OutOfOffice.DAL.Context;
 namespace OutOfOffice.DAL.Migrations
 {
     [DbContext(typeof(OutOfOfficeDbContext))]
-    partial class OutOfOfficeDbContextModelSnapshot : ModelSnapshot
+    [Migration("20240621124538_Project_EndDate_Nullable")]
+    partial class Project_EndDate_Nullable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

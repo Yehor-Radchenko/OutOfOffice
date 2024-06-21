@@ -22,6 +22,6 @@ namespace OutOfOffice.BLL.Dto
         [Required(ErrorMessage = "AbsenceReason is required.")]
         public AbsenceReason AbsenceReason { get; set; }
 
-        public IEnumerable<int> ApprovalRequests { get; set; } = null!;
+        public int ApprovalRequestId { get; set; }
     }
 }
