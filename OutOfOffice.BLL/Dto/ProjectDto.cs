@@ -1,5 +1,4 @@
-﻿
-namespace OutOfOffice.BLL.Dto
+﻿namespace OutOfOffice.BLL.Dto
 {
     public class ProjectDto
     {

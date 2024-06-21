@@ -40,8 +40,8 @@ namespace OutOfOffice.DAL.Context
 
             modelBuilder.Entity<ApprovalRequest>()
                 .HasOne(ar => ar.LeaveRequest)
-                .WithMany(lr => lr.ApprovalRequests)
-                .HasForeignKey(ar => ar.LeaveRequestId)
+                .WithOne(lr => lr.ApprovalRequest)
+                .HasForeignKey<ApprovalRequest>(ar => ar.LeaveRequestId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<LeaveRequest>()
