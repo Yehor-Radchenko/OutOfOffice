@@ -4,9 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OutOfOffice.DAL.Models
+namespace OutOfOffice.BLL.Dto
 {
-    internal class Subdivision
+    internal class ApprovalRequestDto
     {
     }
 }
