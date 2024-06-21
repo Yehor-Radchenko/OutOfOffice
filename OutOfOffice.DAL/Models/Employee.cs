@@ -37,5 +37,13 @@ namespace OutOfOffice.DAL.Models
         public Employee EmployeePartner { get; set; } = null!;
 
         public Position Position { get; set; } = null!;
+
+        public ICollection<Employee> SubordinateEmployees { get; set; } = null!;
+
+        public ICollection<LeaveRequest> LeaveRequests { get; set; } = null!;
+
+        public ICollection<ApprovalRequest> ApprovalRequests { get; set; } = null!;
+
+        public ICollection<Project> ProjectsAsProjectManager { get; set; } = null!;
     }
 }

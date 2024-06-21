@@ -30,5 +30,7 @@ namespace OutOfOffice.DAL.Models
         public AbsenceReason AbsenceReason { get; set; }
 
         public Employee Employee { get; set; } = null!;
+
+        public ICollection<ApprovalRequest> ApprovalRequests { get; set; } = null!;
     }
 }
