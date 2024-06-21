@@ -17,8 +17,8 @@ namespace OutOfOffice.BLL.ViewModels.Project
 
         public ProjectStatus Status { get; set; }
 
-        public EmployeeListViewModel ProjectManager { get; set; } = null!;
+        public BriefEmployeeViewModel ProjectManager { get; set; } = null!;
 
-        public IEnumerable<EmployeeListViewModel>? InvolvedEmployees { get; set; }
+        public IEnumerable<BriefEmployeeViewModel>? InvolvedEmployees { get; set; }
     }
 }

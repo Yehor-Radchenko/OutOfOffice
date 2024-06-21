@@ -15,6 +15,6 @@ namespace OutOfOffice.BLL.ViewModels.ApprovalRequest
 
         public string Comment { get; set; } = null!;
 
-        public EmployeeListViewModel Approver { get; set; } = null!;
+        public BriefEmployeeViewModel Approver { get; set; } = null!;
     }
 }

@@ -18,8 +18,8 @@ namespace OutOfOffice.BLL.ViewModels.LeaveRequest
 
         public AbsenceReason AbsenceReason { get; set; }
 
-        public EmployeeListViewModel Employee { get; set; } = null!;
+        public BriefEmployeeViewModel Employee { get; set; } = null!;
 
-        public ApprovalRequestListModel? ApprovalRequest { get; set; }
+        public BriefApprovalRequestViewModel? ApprovalRequest { get; set; }
     }
 }

@@ -1,6 +1,6 @@
 ﻿namespace OutOfOffice.BLL.ViewModels.Employee
 {
-    public class EmployeeListViewModel
+    public class BriefEmployeeViewModel
     {
         public int Id { get; set; }
 

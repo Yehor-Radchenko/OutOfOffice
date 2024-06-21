@@ -1,6 +1,4 @@
-﻿using OutOfOffice.BLL.ViewModels.ApprovalRequest;
-using OutOfOffice.BLL.ViewModels.Employee;
-using OutOfOffice.Common.Enums;
+﻿using OutOfOffice.Common.Enums;
 
 namespace OutOfOffice.BLL.ViewModels.LeaveRequest
 {
