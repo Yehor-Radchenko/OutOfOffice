@@ -12,12 +12,12 @@ namespace OutOfOffice.BLL.ViewModels.Employee
 
         public int PositionId { get; set; }
 
-        public EmployeeStatus Status { get; set; }
+        public string Status { get; set; }
+
+        public int? EmployeePartnerId { get; set; }
 
         public int OutOfOfficeBalance { get; set; }
 
-        public string PartnerFullName { get; set; }
-
-        public string Position { get; set; }
+        public int? PhotoId { get; set; }
     }
 }

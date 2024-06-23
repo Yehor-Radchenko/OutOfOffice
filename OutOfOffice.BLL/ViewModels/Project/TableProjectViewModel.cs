@@ -1,8 +1,6 @@
-﻿using OutOfOffice.BLL.ViewModels.Employee;
-
-namespace OutOfOffice.BLL.ViewModels.Project
+﻿namespace OutOfOffice.BLL.ViewModels.Project
 {
-    public class FullProjectViewModel
+    public class TableProjectViewModel
     {
         public int Id { get; set; }
 
@@ -12,12 +10,10 @@ namespace OutOfOffice.BLL.ViewModels.Project
 
         public DateTime? EndDate { get; set; }
 
+        public int ProjectManagerId { get; set; }
+
         public string Comment { get; set; } = null!;
 
         public string Status { get; set; }
-
-        public BriefEmployeeViewModel ProjectManager { get; set; } = null!;
-
-        public IEnumerable<BriefEmployeeViewModel>? InvolvedEmployees { get; set; }
     }
 }

@@ -1,4 +1,6 @@
-﻿using OutOfOffice.Common.Enums;
+﻿using Microsoft.AspNetCore.Http;
+using OutOfOffice.BLL.ValidationAttributes;
+using OutOfOffice.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace OutOfOffice.BLL.Dto
@@ -9,6 +11,7 @@ namespace OutOfOffice.BLL.Dto
         public string FullName { get; set; } = null!;
 
         [Required(ErrorMessage = "Subdivision is required.")]
+        [ValidSubdivision(ErrorMessage = "The provided Subdivision is not valid.")]
         public string Subdivision { get; set; } = null!;
 
         [Required(ErrorMessage = "Position is required.")]
@@ -23,14 +26,6 @@ namespace OutOfOffice.BLL.Dto
         [Required(ErrorMessage = "Balance is required.")]
         public int OutOfOfficeBalance { get; set; }
 
-        public int PhotoId { get; set; }
-
-        public IEnumerable<int> SubordinateEmployeeIds { get; set; } = null!;
-
-        public IEnumerable<int> LeaveRequestIds { get; set; } = null!;
-
-        public IEnumerable<int> ApprovalRequestIds { get; set; } = null!;
-
-        public IEnumerable<int> ProjectsAsProjectManagerIds { get; set; } = null!;
+        public IFormFile? Photo { get; set; }
     }
 }

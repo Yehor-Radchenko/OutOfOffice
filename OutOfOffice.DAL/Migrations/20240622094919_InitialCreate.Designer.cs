@@ -12,8 +12,8 @@ using OutOfOffice.DAL.Context;
 namespace OutOfOffice.DAL.Migrations
 {
     [DbContext(typeof(OutOfOfficeDbContext))]
-    [Migration("20240621124538_Project_EndDate_Nullable")]
-    partial class Project_EndDate_Nullable
+    [Migration("20240622094919_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -43,8 +43,9 @@ namespace OutOfOffice.DAL.Migrations
                     b.Property<int>("LeaveRequestId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -64,10 +65,7 @@ namespace OutOfOffice.DAL.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("EmployeeId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("EmployeePartnerId")
+                    b.Property<int?>("EmployeePartnerId")
                         .HasColumnType("int");
 
                     b.Property<string>("FullName")
@@ -83,16 +81,15 @@ namespace OutOfOffice.DAL.Migrations
                     b.Property<int>("PositionId")
                         .HasColumnType("int");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Subdivision")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
-
-                    b.HasIndex("EmployeeId");
 
                     b.HasIndex("EmployeePartnerId");
 
@@ -130,8 +127,9 @@ namespace OutOfOffice.DAL.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -201,8 +199,9 @@ namespace OutOfOffice.DAL.Migrations
                     b.Property<DateTime>("StartDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int>("Status")
-                        .HasColumnType("int");
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
@@ -232,15 +231,10 @@ namespace OutOfOffice.DAL.Migrations
 
             modelBuilder.Entity("OutOfOffice.DAL.Models.Employee", b =>
                 {
-                    b.HasOne("OutOfOffice.DAL.Models.Employee", null)
-                        .WithMany("SubordinateEmployees")
-                        .HasForeignKey("EmployeeId");
-
                     b.HasOne("OutOfOffice.DAL.Models.Employee", "EmployeePartner")
                         .WithMany()
                         .HasForeignKey("EmployeePartnerId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
+                        .OnDelete(DeleteBehavior.Restrict);
 
                     b.HasOne("OutOfOffice.DAL.Models.Photo", "Photo")
                         .WithMany()
@@ -290,8 +284,6 @@ namespace OutOfOffice.DAL.Migrations
                     b.Navigation("LeaveRequests");
 
                     b.Navigation("ProjectsAsProjectManager");
-
-                    b.Navigation("SubordinateEmployees");
                 });
 
             modelBuilder.Entity("OutOfOffice.DAL.Models.LeaveRequest", b =>

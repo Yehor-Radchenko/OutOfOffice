@@ -14,9 +14,9 @@ namespace OutOfOffice.BLL.ViewModels.LeaveRequest
 
         public string Comment { get; set; } = null!;
 
-        public RequestStatus Status { get; set; }
+        public string Status { get; set; }
 
-        public AbsenceReason AbsenceReason { get; set; }
+        public string AbsenceReason { get; set; }
 
         public BriefEmployeeViewModel Employee { get; set; } = null!;
 

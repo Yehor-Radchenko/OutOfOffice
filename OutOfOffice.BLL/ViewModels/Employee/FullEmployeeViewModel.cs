@@ -1,5 +1,4 @@
 ﻿using OutOfOffice.BLL.ViewModels.LeaveRequest;
-using OutOfOffice.Common.Enums;
 
 namespace OutOfOffice.BLL.ViewModels.Employee
 {
@@ -11,13 +10,11 @@ namespace OutOfOffice.BLL.ViewModels.Employee
 
         public string Subdivision { get; set; } = null!;
 
-        public EmployeeStatus Status { get; set; }
+        public string Status { get; set; }
 
         public int OutOfOfficeBalance { get; set; }
 
-        public byte[] Photo { get; set; }
-
-        public BriefEmployeeViewModel EmployeePartnerInfo { get; set; }
+        public BriefEmployeeViewModel? EmployeePartnerInfo { get; set; }
 
         public string Position { get; set; }
 
@@ -26,5 +23,7 @@ namespace OutOfOffice.BLL.ViewModels.Employee
         public IEnumerable<EmployeeLeaveRequestViewModel>? LeaveRequests { get; set; }
 
         public IEnumerable<int>? ProjectIds { get; set; }
+
+        public byte[] Photo { get; set; }
     }
 }

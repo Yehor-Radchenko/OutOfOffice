@@ -18,6 +18,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\OutOfOffice.Common\OutOfOffice.Common.csproj" />
+    <ProjectReference Include="..\OutOfOffice.DAL\OutOfOffice.DAL.csproj" />
   </ItemGroup>
 
 </Project>

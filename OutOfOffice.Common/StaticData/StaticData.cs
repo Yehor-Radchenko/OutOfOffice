@@ -2,7 +2,7 @@
 {
     public class StaticData
     {
-        public readonly string[] AbsenceReasons =
+        public static readonly string[] AbsenceReasons =
         [
             "Vacation",
             "Sick Leave",
@@ -12,7 +12,7 @@
         ];
 
 
-        public readonly string[] Subdivisions =
+        public static readonly string[] Subdivisions =
         [
             "Marketing Department",
             "Human Resources",

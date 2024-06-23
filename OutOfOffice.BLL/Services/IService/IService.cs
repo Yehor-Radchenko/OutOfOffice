@@ -1,9 +1,15 @@
 ﻿namespace OutOfOffice.BLL.Services.IService
 {
-    internal interface IService<TDto, TViewModel>
+    public interface IService<TDto, TFullViewMode, TBriefViewModel, TTableViewModel>
     {
-        Task<IEnumerable<TViewModel>> GetAllAsync(string? searchValue = null);
+        Task<List<TTableViewModel>> GetTableDataAsync(string? searchValue = null);
 
-        Task<TViewModel>
+        Task<TFullViewMode> GetFullInfoByIdAsync(int id);
+
+        Task<List<TBriefViewModel>> GetBriefListAsync(string? search = null);
+
+        Task<int> AddAsync(TDto dto);
+
+        Task<bool> UpdateAsync(int id, TDto expectedEntityValues);
     }
 }

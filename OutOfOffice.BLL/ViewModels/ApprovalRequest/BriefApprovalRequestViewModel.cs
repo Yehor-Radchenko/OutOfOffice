@@ -1,5 +1,4 @@
 ﻿using OutOfOffice.BLL.ViewModels.Employee;
-using OutOfOffice.Common.Enums;
 
 namespace OutOfOffice.BLL.ViewModels.ApprovalRequest
 {
@@ -7,8 +6,8 @@ namespace OutOfOffice.BLL.ViewModels.ApprovalRequest
     {
         public int Id { get; set; }
 
-        public RequestStatus Status { get; set; }
+        public string Status { get; set; }
 
-        public  BriefEmployeeViewModel ApprovedBy { get; set; }
+        public BriefEmployeeViewModel ApprovedBy { get; set; }
     }
 }

@@ -2,9 +2,11 @@
 
 namespace OutOfOffice.BLL.ViewModels.LeaveRequest
 {
-    public class EmployeeLeaveRequestViewModel
+    public class TableLeaveRequestViewModel
     {
         public int Id { get; set; }
+
+        public int EmployeeId { get; set; }
 
         public DateTime StartDate { get; set; }
 
@@ -12,10 +14,10 @@ namespace OutOfOffice.BLL.ViewModels.LeaveRequest
 
         public string Comment { get; set; } = null!;
 
-        public string Status { get; set; } = null!;
+        public string Status { get; set; }
 
-        public string AbsenceReason { get; set; } = null!;
+        public string AbsenceReason { get; set; }
 
-        public string? ApproveStatus { get; set; } = null;
+        public int ApprovalRequestId { get; set; }
     }
 }

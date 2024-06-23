@@ -3,7 +3,7 @@ using OutOfOffice.Common.Enums;
 
 namespace OutOfOffice.BLL.ViewModels.ApprovalRequest
 {
-    public class FullApprovalRequestViewModel
+    public class TableApprovalRequestViewModel
     {
         public int Id { get; set; }
 
@@ -14,7 +14,5 @@ namespace OutOfOffice.BLL.ViewModels.ApprovalRequest
         public string Status { get; set; }
 
         public string Comment { get; set; } = null!;
-
-        public BriefEmployeeViewModel Approver { get; set; } = null!;
     }
 }

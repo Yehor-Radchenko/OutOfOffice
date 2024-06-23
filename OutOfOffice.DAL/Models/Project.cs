@@ -29,5 +29,7 @@ namespace OutOfOffice.DAL.Models
         public ProjectStatus Status { get; set; }
 
         public Employee ProjectManager { get; set; } = null!;
+
+        public ICollection<Employee> Employees { get; set; } = null!;
     }
 }
