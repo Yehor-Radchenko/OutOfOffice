@@ -3,6 +3,6 @@
     public enum ProjectStatus
     {
         Active,
-        Inactive,
+        Deactivated
     }
 }

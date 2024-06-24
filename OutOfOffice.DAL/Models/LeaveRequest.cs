@@ -27,10 +27,12 @@ namespace OutOfOffice.DAL.Models
         public RequestStatus Status { get; set; } = RequestStatus.New;
 
         [Required]
-        public AbsenceReason AbsenceReason { get; set; }
+        public string AbsenceReason { get; set; } = null!;
+
+        public int ApprovalRequestId { get; set; }
 
         public Employee Employee { get; set; } = null!;
 
-        public ICollection<ApprovalRequest> ApprovalRequests { get; set; } = null!;
+        public ApprovalRequest? ApprovalRequest { get; set; }
     }
 }

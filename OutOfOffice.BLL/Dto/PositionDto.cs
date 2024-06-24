@@ -1,12 +1,10 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace OutOfOffice.BLL.Dto
 {
-    internal class PositionDto
+    public class PositionDto
     {
+        [Required(ErrorMessage = "Position name is required.")]
+        public string Name { get; set; } = null!;
     }
 }

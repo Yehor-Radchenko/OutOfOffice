@@ -9,8 +9,10 @@ namespace OutOfOffice.Common.Enums
     public enum RequestStatus
     {
         New,
+        Pending,
         Submited,
         Canceled,
-        Approved
+        Approved,
+        Rejected
     }
 }

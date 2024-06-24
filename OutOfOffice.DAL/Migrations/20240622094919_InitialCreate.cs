@@ -46,20 +46,14 @@ namespace OutOfOffice.DAL.Migrations
                     FullName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Subdivision = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     PositionId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    EmployeePartnerId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    EmployeePartnerId = table.Column<int>(type: "int", nullable: true),
                     OutOfOfficeBalance = table.Column<int>(type: "int", nullable: false),
-                    PhotoId = table.Column<int>(type: "int", nullable: false),
-                    EmployeeId = table.Column<int>(type: "int", nullable: true)
+                    PhotoId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Employees", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Employees_Employees_EmployeeId",
-                        column: x => x.EmployeeId,
-                        principalTable: "Employees",
-                        principalColumn: "Id");
                     table.ForeignKey(
                         name: "FK_Employees_Employees_EmployeePartnerId",
                         column: x => x.EmployeePartnerId,
@@ -90,8 +84,9 @@ namespace OutOfOffice.DAL.Migrations
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
-                    AbsenceReason = table.Column<int>(type: "int", nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    AbsenceReason = table.Column<int>(type: "int", nullable: false),
+                    ApprovalRequestId = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -112,10 +107,10 @@ namespace OutOfOffice.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ProjectType = table.Column<int>(type: "int", nullable: false),
                     StartDate = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    EndDate = table.Column<DateTime>(type: "datetime2", nullable: true),
                     ProjectManagerId = table.Column<int>(type: "int", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false)
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -136,7 +131,7 @@ namespace OutOfOffice.DAL.Migrations
                         .Annotation("SqlServer:Identity", "1, 1"),
                     ApproverId = table.Column<int>(type: "int", nullable: false),
                     LeaveRequestId = table.Column<int>(type: "int", nullable: false),
-                    Status = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Comment = table.Column<string>(type: "nvarchar(max)", nullable: false)
                 },
                 constraints: table =>
@@ -164,12 +159,8 @@ namespace OutOfOffice.DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_ApprovalRequests_LeaveRequestId",
                 table: "ApprovalRequests",
-                column: "LeaveRequestId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Employees_EmployeeId",
-                table: "Employees",
-                column: "EmployeeId");
+                column: "LeaveRequestId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Employees_EmployeePartnerId",

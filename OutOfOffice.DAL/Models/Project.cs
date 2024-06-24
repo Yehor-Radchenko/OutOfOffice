@@ -16,9 +16,8 @@ namespace OutOfOffice.DAL.Models
         [DataType(DataType.Date)]
         public DateTime StartDate { get; set; }
 
-        [Required]
         [DataType(DataType.Date)]
-        public DateTime EndDate { get; set; }
+        public DateTime? EndDate { get; set; }
 
         [Required]
         [ForeignKey(nameof(ProjectManager))]
@@ -30,5 +29,7 @@ namespace OutOfOffice.DAL.Models
         public ProjectStatus Status { get; set; }
 
         public Employee ProjectManager { get; set; } = null!;
+
+        public ICollection<Employee> Employees { get; set; } = null!;
     }
 }
