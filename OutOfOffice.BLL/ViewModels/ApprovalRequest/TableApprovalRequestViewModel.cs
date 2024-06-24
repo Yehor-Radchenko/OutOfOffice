@@ -11,7 +11,7 @@ namespace OutOfOffice.BLL.ViewModels.ApprovalRequest
 
         public int LeaveRequestId { get; set; }
 
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
 
         public string Comment { get; set; } = null!;
     }

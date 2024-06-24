@@ -1,13 +1,10 @@
 ﻿using OutOfOffice.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 
-namespace OutOfOffice.BLL.Dto
+namespace OutOfOffice.BLL.Dto.ApprovalRequestDto
 {
-    public class ApprovalRequestDto
+    public class CreateApprovalRequestDto
     {
-        [Required(ErrorMessage = "Approver is required.")]
-        public int ApproverId { get; set; }
-
         [Required(ErrorMessage = "LeaveRequest is required.")]
         public int LeaveRequestId { get; set; }
 

@@ -12,6 +12,7 @@ namespace OutOfOffice.Common.Enums
         Pending,
         Submited,
         Canceled,
-        Approved
+        Approved,
+        Rejected
     }
 }

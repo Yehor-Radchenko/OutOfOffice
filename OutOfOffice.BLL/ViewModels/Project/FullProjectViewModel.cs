@@ -6,7 +6,7 @@ namespace OutOfOffice.BLL.ViewModels.Project
     {
         public int Id { get; set; }
 
-        public string ProjectType { get; set; }
+        public string ProjectType { get; set; } = null!;
 
         public DateTime StartDate { get; set; }
 
@@ -14,7 +14,7 @@ namespace OutOfOffice.BLL.ViewModels.Project
 
         public string Comment { get; set; } = null!;
 
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
 
         public BriefEmployeeViewModel ProjectManager { get; set; } = null!;
 

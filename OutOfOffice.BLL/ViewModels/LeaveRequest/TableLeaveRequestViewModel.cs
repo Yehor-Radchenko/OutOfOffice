@@ -14,9 +14,9 @@ namespace OutOfOffice.BLL.ViewModels.LeaveRequest
 
         public string Comment { get; set; } = null!;
 
-        public string Status { get; set; }
+        public string Status { get; set; } = null!;
 
-        public string AbsenceReason { get; set; }
+        public string AbsenceReason { get; set; } = null!;
 
         public int ApprovalRequestId { get; set; }
     }
