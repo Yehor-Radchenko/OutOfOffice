@@ -5,16 +5,16 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace OutOfOffice.DAL.Models
 {
-    public class Employee : IdentityUser
+    public class Employee : IdentityUser<int>
     {
         [Key]
-        public int Id { get; set; }
+        public override int Id { get; set; }
 
         [Required]
-        public string FullName { get; set; } = null!;
+        public string FullName { get; set; } = string.Empty;
 
         [Required]
-        public string Subdivision { get; set; } = null!;
+        public string Subdivision { get; set; } = string.Empty;
 
         [Required]
         [ForeignKey(nameof(Position))]
@@ -34,13 +34,13 @@ namespace OutOfOffice.DAL.Models
 
         public Photo Photo { get; set; } = null!;
 
-        public Employee? EmployeePartner { get; set; } = null!;
+        public Employee? EmployeePartner { get; set; }
 
-        public Position Position { get; set; } = null!;
+        public Position Position { get; set; } = new Position();
 
-        public ICollection<LeaveRequest> LeaveRequests { get; set; } = null!;
+        public ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
 
-        public ICollection<ApprovalRequest> ApprovalRequests { get; set; } = null!;
+        public ICollection<ApprovalRequest> ApprovalRequests { get; set; } = new List<ApprovalRequest>();
 
         public ICollection<Project> ManagedProjects { get; set; } = new List<Project>();
 

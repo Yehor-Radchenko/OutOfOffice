@@ -6,9 +6,6 @@ namespace OutOfOffice.BLL.Dto
 {
     public class LeaveRequestDto
     {
-        [Required(ErrorMessage = "Employee is required.")]
-        public int EmployeeId { get; set; }
-
         [Required(ErrorMessage = "StartDate is required.")]
         public DateTime StartDate { get; set; }
 

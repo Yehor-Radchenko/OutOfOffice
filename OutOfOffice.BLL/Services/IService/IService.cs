@@ -8,7 +8,7 @@
 
         Task<List<TBriefViewModel>> GetBriefListAsync(string? search = null);
 
-        Task<int> AddAsync(TDto dto);
+        Task<int> RegisterAsync(TDto dto);
 
         Task<bool> UpdateAsync(int id, TDto expectedEntityValues);
     }

@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc;
 using OutOfOffice.BLL.Dto;
 using OutOfOffice.BLL.Services;
 using OutOfOffice.BLL.ViewModels.Employee;
 using OutOfOffice.Common.Enums;
+using OutOfOffice.DAL.Models;
 
 namespace OutOfOffice.Controllers;
 
@@ -11,13 +14,16 @@ namespace OutOfOffice.Controllers;
 public class EmployeeController : ControllerBase
 {
     private readonly EmployeeService _employeeService;
+    private readonly UserManager<Employee> _userManager;
 
-    public EmployeeController (EmployeeService employeeService)
+    public EmployeeController (EmployeeService employeeService, UserManager<Employee> userManager)
     {
         _employeeService = employeeService;
+        _userManager = userManager;
     }
 
     [HttpGet("table-data")]
+    [Authorize(Roles = "HRManager,ProjectManager,Admin")]
     public async Task<IActionResult> GetTableViewModels(string? search)
     {
         var query = new List<TableEmployeeViewModel>();
@@ -35,6 +41,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpGet("{id}")]
+    [Authorize(Roles = "HRManager,ProjectManager,Admin")]
     public async Task<FullEmployeeViewModel> GetFullInfo(int id)
     {
         var result = await _employeeService.GetFullInfoByIdAsync(id);
@@ -42,12 +49,22 @@ public class EmployeeController : ControllerBase
         return result;
     }
 
+    [HttpGet]
+    [Authorize]
+    public async Task<FullEmployeeViewModel> GetFullInfoAboutAuthentificatedEmployee()
+    {
+        var result = await _employeeService.GetFullInfoByIdAsync(int.Parse(_userManager.GetUserId(User)));
+
+        return result;
+    }
+
     [HttpPost]
+    [Authorize(Roles = "HRManager,ProjectManager,Admin")]
     public async Task<IActionResult> CreateEmployee([FromForm] EmployeeDto dto)
     {
         if (ModelState.IsValid)
         {
-            var employeeId = await _employeeService.AddAsync(dto);
+            var employeeId = await _employeeService.RegisterAsync(dto);
             return Ok(employeeId);
         }
         else
@@ -57,6 +74,7 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut("update/{id}")]
+    [Authorize(Roles = "HRManager,ProjectManager,Admin")]
     public async Task<IActionResult> UpdateEmployee(int id, [FromForm] EmployeeDto dto)
     {
         if (ModelState.IsValid)
@@ -71,7 +89,8 @@ public class EmployeeController : ControllerBase
     }
 
     [HttpPut("changeStatus/{id}")]
-    public async Task<IActionResult> UpdateEmployee(int id, [FromBody] EmployeeStatus status)
+    [Authorize(Roles = "HRManager,ProjectManager,Admin")]
+    public async Task<IActionResult> ChangeStatusAsync(int id, [FromBody] EmployeeStatus status)
     {
         if (ModelState.IsValid)
         {

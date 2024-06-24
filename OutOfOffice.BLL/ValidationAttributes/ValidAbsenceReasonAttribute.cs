@@ -11,7 +11,7 @@ namespace OutOfOffice.BLL.ValidationAttributes
 
             if (string.IsNullOrEmpty(absenceReason) || !StaticData.AbsenceReasons.Contains(absenceReason))
             {
-                return new ValidationResult($"The Subdivision '{absenceReason}' is not valid.");
+                return new ValidationResult($"The Absence reason '{absenceReason}' is not valid.");
             }
 
             return ValidationResult.Success;

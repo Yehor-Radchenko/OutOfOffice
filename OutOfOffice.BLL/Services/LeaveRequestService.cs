@@ -61,12 +61,11 @@ namespace OutOfOffice.BLL.Services
             return viewModel;
         }
 
-        public async Task<List<EmployeeLeaveRequestViewModel>> GetTableDataAsync(string? searchValue = null)
+        public async Task<List<EmployeeLeaveRequestViewModel>> GetEmployeeLeaveRequestsAsync(int userId, string? searchValue = null)
         {
-            //TODO: Select LeaveRequests only authentificated Employee
-
             var query = _context.LeaveRequests
                 .Include(lr => lr.ApprovalRequest)
+                .Where(lr => lr.EmployeeId == userId)
                 .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchValue))
@@ -75,7 +74,6 @@ namespace OutOfOffice.BLL.Services
                 query = query.Where(lr =>
                     lr.Id.ToString().Contains(searchValue) ||
                     lr.Employee.FullName.ToLower().Contains(searchValue));
-
             }
 
             var leaveRequests = await query.ToListAsync();
@@ -89,15 +87,16 @@ namespace OutOfOffice.BLL.Services
                 Status = leaveRequest.Status.ToString(),
                 AbsenceReason = leaveRequest.AbsenceReason.ToString(),
                 ApproveStatus = leaveRequest.ApprovalRequest != null ? leaveRequest.ApprovalRequest.Status.ToString() : RequestStatus.Pending.ToString(),
-            })
-                .ToList();
+            }).ToList();
 
             return viewModelList;
         }
 
-        public async Task<List<TableLeaveRequestViewModel>> GetTableDataWithEmployeeAsync(string? searchValue = null)
+        public async Task<List<TableLeaveRequestViewModel>> GetAllLeaveRequestsAsync(string? searchValue = null)
         {
-            var query = _context.LeaveRequests.AsQueryable();
+            var query = _context.LeaveRequests
+                .Include(lr => lr.ApprovalRequest)
+                .AsQueryable();
 
             if (!string.IsNullOrEmpty(searchValue))
             {
@@ -105,7 +104,6 @@ namespace OutOfOffice.BLL.Services
                 query = query.Where(lr =>
                     lr.Id.ToString().Contains(searchValue) ||
                     lr.Employee.FullName.ToLower().Contains(searchValue));
-
             }
 
             var leaveRequests = await query.ToListAsync();
@@ -119,22 +117,22 @@ namespace OutOfOffice.BLL.Services
                 Comment = leaveRequest.Comment,
                 Status = leaveRequest.Status.ToString(),
                 AbsenceReason = leaveRequest.AbsenceReason.ToString(),
-                ApprovalRequestId = leaveRequest.ApprovalRequestId
+                ApprovalRequestId = leaveRequest.ApprovalRequest?.Id ?? 0,
             }).ToList();
 
             return viewModelList;
         }
 
-        public async Task<int> AddAsync(LeaveRequestDto expectedValues)
+        public async Task<int> AddAsync(int employeeId, LeaveRequestDto requestDto)
         {
             var leaveRequest = new LeaveRequest
             {
-                EmployeeId = expectedValues.EmployeeId,
-                StartDate = expectedValues.StartDate,
-                EndDate = expectedValues.EndDate,
-                Comment = expectedValues.Comment,
-                Status = expectedValues.Status,
-                AbsenceReason = expectedValues.AbsenceReason,
+                EmployeeId = employeeId,
+                StartDate = requestDto.StartDate,
+                EndDate = requestDto.EndDate,
+                Comment = requestDto.Comment,
+                Status = requestDto.Status,
+                AbsenceReason = requestDto.AbsenceReason,
             };
 
             await _context.LeaveRequests.AddAsync(leaveRequest);

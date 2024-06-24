@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OutOfOffice.BLL.Dto;
 using OutOfOffice.BLL.Exceptions;
@@ -9,21 +10,28 @@ using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 
-namespace OutOfOffice.BLL.Services
+namespace OutOfOffice.BLL.Services;
+
+public class EmployeeService : IEmployeeService
 {
-    public class EmployeeService : IEmployeeService
+    private readonly UserManager<Employee> _userManager;
+    private readonly OutOfOfficeDbContext _context;
+
+    public EmployeeService(UserManager<Employee> userManager, OutOfOfficeDbContext context)
     {
+        _userManager = userManager;
+        _context = context;
+    }
 
-        private readonly OutOfOfficeDbContext _context;
-
-        public EmployeeService(OutOfOfficeDbContext context)
-        {
-            _context = context;
-        }
-
-        public async Task<int> AddAsync(EmployeeDto dto)
+    public async Task<int> RegisterAsync(EmployeeDto dto)
         {
             ArgumentNullException.ThrowIfNull(nameof(dto));
+
+            var existingEmployee = await _userManager.FindByEmailAsync(dto.Email);
+            if (existingEmployee != null)
+            {
+                throw new ApplicationException($"Employee with email '{dto.Email}' already exists.");
+            }
 
             int photoId = 0;
             if (dto.Photo is not null && dto.Photo.Length > 0)
@@ -31,23 +39,47 @@ namespace OutOfOffice.BLL.Services
                 photoId = await UploadPhotoAsync(dto.Photo);
             }
 
-            Employee employeeModel = new Employee
+            var employeeModel = new Employee
             {
+                UserName = dto.Email,
+                Email = dto.Email,
                 FullName = dto.FullName,
                 Subdivision = dto.Subdivision,
                 PositionId = dto.PositionId,
-                Status = dto.Status,
+                Status = EmployeeStatus.Active,
                 EmployeePartnerId = dto.EmployeePartnerId != 0 ? dto.EmployeePartnerId : null,
                 OutOfOfficeBalance = dto.OutOfOfficeBalance,
-                PhotoId = photoId != 0 ? photoId : null,
+                PhotoId = photoId != 0 ? photoId : null
             };
 
-            await _context.Employees.AddAsync(employeeModel);
-            await _context.SaveChangesAsync();
-            return employeeModel.Id;
+            var result = await _userManager.CreateAsync(employeeModel, dto.Password);
+
+            if (result.Succeeded)
+            {
+                employeeModel = await _userManager.FindByEmailAsync(dto.Email);
+
+                if (employeeModel == null)
+                {
+                    throw new ApplicationException("Failed to retrieve the created user.");
+                }
+
+                var userManagerresult = await _userManager.AddToRoleAsync(employeeModel, "Employee");
+                if (userManagerresult.Succeeded)
+                {
+                    return employeeModel.Id;
+                }
+                else
+                {
+                    throw new ApplicationException($"Failed to assign role: {userManagerresult.Errors.FirstOrDefault()?.Description}");
+                }
+            }
+            else
+            {
+                throw new ApplicationException($"Failed to create user: {result.Errors.FirstOrDefault()?.Description}");
+            }
         }
 
-        public async Task<int> UploadPhotoAsync(IFormFile formFile)
+    public async Task<int> UploadPhotoAsync(IFormFile formFile)
         {
             using (var memoryStream = new MemoryStream())
             {
@@ -62,7 +94,7 @@ namespace OutOfOffice.BLL.Services
             }
         }
 
-        public async Task<bool> ChangeStatusAsync(int id, EmployeeStatus expectedEmployeeStatus)
+    public async Task<bool> ChangeStatusAsync(int id, EmployeeStatus expectedEmployeeStatus)
         {
             var getEmployee = await _context.Employees.FirstOrDefaultAsync(e => e.Id == id);
 
@@ -77,7 +109,7 @@ namespace OutOfOffice.BLL.Services
             return true;
         }
 
-        public async Task<List<BriefEmployeeViewModel>> GetBriefListAsync(string? search = null)
+    public async Task<List<BriefEmployeeViewModel>> GetBriefListAsync(string? search = null)
         {
             var result = new List<BriefEmployeeViewModel>();
 
@@ -104,7 +136,7 @@ namespace OutOfOffice.BLL.Services
             return result;
         }
 
-        public async Task<FullEmployeeViewModel> GetFullInfoByIdAsync(int id)
+    public async Task<FullEmployeeViewModel> GetFullInfoByIdAsync(int id)
         {
             var employeeInfo = await _context.Employees
                 .Include(e => e.EmployeePartner)
@@ -163,7 +195,7 @@ namespace OutOfOffice.BLL.Services
             return employeeInfo;
         }
 
-        public async Task<List<TableEmployeeViewModel>> GetTableDataAsync(string? searchValue = null)
+    public async Task<List<TableEmployeeViewModel>> GetTableDataAsync(string? searchValue = null)
         {
             var query = _context.Employees.AsQueryable();
 
@@ -189,7 +221,7 @@ namespace OutOfOffice.BLL.Services
             return result;
         }
 
-        public async Task<bool> UpdateAsync(int id, EmployeeDto expectedEntityValues)
+    public async Task<bool> UpdateAsync(int id, EmployeeDto expectedEntityValues)
         {
             var employee = await _context.Employees
                 .Include(e => e.Photo)
@@ -203,7 +235,6 @@ namespace OutOfOffice.BLL.Services
             employee.FullName = expectedEntityValues.FullName;
             employee.Subdivision = expectedEntityValues.Subdivision;
             employee.PositionId = expectedEntityValues.PositionId;
-            employee.Status = expectedEntityValues.Status;
             employee.EmployeePartnerId = expectedEntityValues.EmployeePartnerId;
             employee.OutOfOfficeBalance = expectedEntityValues.OutOfOfficeBalance;
 
@@ -218,5 +249,4 @@ namespace OutOfOffice.BLL.Services
 
             return true;
         }
-    }
 }

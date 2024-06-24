@@ -1,10 +1,11 @@
-﻿using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using OutOfOffice.DAL.Models;
 
 namespace OutOfOffice.DAL.Context
 {
-    public class OutOfOfficeDbContext : IdentityDbContext<Employee>
+    public class OutOfOfficeDbContext : IdentityDbContext<Employee, IdentityRole<int>, int>
     {
         public OutOfOfficeDbContext(DbContextOptions<OutOfOfficeDbContext> options) : base(options)
         {
