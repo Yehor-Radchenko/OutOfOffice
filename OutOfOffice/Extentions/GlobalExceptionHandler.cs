@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Net;
 using Newtonsoft.Json;
 using Exception = System.Exception;
-using OutOfOffice.BLL.Exceptions;
+using OutOfOffice.Common.Exceptions;
 
 namespace OutOfOffice.Extentions;
 

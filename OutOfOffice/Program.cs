@@ -2,11 +2,12 @@ using Microsoft.AspNetCore.Identity;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using OutOfOffice.BLL.Services;
-using OutOfOffice.BLL.Services.Jwt;
+using OutOfOffice.Common.Services;
+using OutOfOffice.Common.Services.Jwt;
 using Microsoft.Extensions.Options;
 using OutOfOffice.Extentions;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -36,6 +37,8 @@ builder.Services.AddScoped<JwtService>();
 
 builder.Services.AddScoped<EmployeeService>();
 builder.Services.AddScoped<LeaveRequestService>();
+builder.Services.AddScoped<ApprovalRequestService>();
+builder.Services.AddScoped<ProjectService>();
 
 var app = builder.Build();
 

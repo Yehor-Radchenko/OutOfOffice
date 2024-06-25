@@ -1,4 +1,4 @@
-﻿namespace OutOfOffice.BLL.Exceptions
+﻿namespace OutOfOffice.Common.Exceptions
 {
     public class ConflictException : Exception
     {

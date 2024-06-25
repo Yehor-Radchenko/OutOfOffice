@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using OutOfOffice.BLL.Dto.ApprovalRequestDto;
-using OutOfOffice.BLL.Services;
+using OutOfOffice.Common.Dto.ApprovalRequestDto;
+using OutOfOffice.Common.Services;
 using OutOfOffice.DAL.Models;
+using System.IdentityModel.Tokens.Jwt;
 
 namespace OutOfOffice.Controllers;
 
@@ -13,12 +14,10 @@ namespace OutOfOffice.Controllers;
 public class ApprovalRequestController : ControllerBase
 {
     private readonly ApprovalRequestService _approvalRequestService;
-    private readonly UserManager<Employee> _userManager;
 
-    public ApprovalRequestController(ApprovalRequestService approvalRequestService, UserManager<Employee> userManager)
+    public ApprovalRequestController(ApprovalRequestService approvalRequestService)
     {
         _approvalRequestService = approvalRequestService;
-        _userManager = userManager;
     }
 
     [HttpGet]
@@ -47,11 +46,9 @@ public class ApprovalRequestController : ControllerBase
     {
         try
         {
-            var currentUser = await _userManager.GetUserAsync(User);
+            int approverId = GetCurrentUserIdFromToken();
 
-            var approverUserId = currentUser.Id;
-
-            var result = await _approvalRequestService.HandleApprovalRequestAsync(dto, approverUserId);
+            var result = await _approvalRequestService.HandleApprovalRequestAsync(dto, approverId);
             return Ok(result);
         }
         catch (Exception ex)
@@ -65,11 +62,9 @@ public class ApprovalRequestController : ControllerBase
     {
         try
         {
-            var currentUser = await _userManager.GetUserAsync(User);
+            int approverId = GetCurrentUserIdFromToken();
 
-            var approverUserId = currentUser.Id;
-
-            var result = await _approvalRequestService.UpdateApprovalRequestAsync(id, dto, approverUserId);
+            var result = await _approvalRequestService.UpdateApprovalRequestAsync(id, dto, approverId);
             return Ok(result);
         }
         catch (KeyNotFoundException ex)
@@ -80,5 +75,13 @@ public class ApprovalRequestController : ControllerBase
         {
             return StatusCode(500, $"Internal server error: {ex.Message}");
         }
+    }
+
+    private int GetCurrentUserIdFromToken()
+    {
+        var getToken = HttpContext.Request.Cookies["jwt-token"];
+        var convertToken = JwtSecurityTokenConverter.Convert(new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(getToken));
+        var approverId = Convert.ToInt32(convertToken.Claims.FirstOrDefault().Value);
+        return approverId;
     }
 }

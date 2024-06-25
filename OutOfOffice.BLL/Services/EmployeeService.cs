@@ -1,16 +1,16 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using OutOfOffice.BLL.Dto;
-using OutOfOffice.BLL.Exceptions;
-using OutOfOffice.BLL.Services.IService;
-using OutOfOffice.BLL.ViewModels.Employee;
-using OutOfOffice.BLL.ViewModels.LeaveRequest;
+using OutOfOffice.Common.Dto;
+using OutOfOffice.Common.Exceptions;
+using OutOfOffice.Common.Services.IService;
+using OutOfOffice.Common.ViewModels.Employee;
+using OutOfOffice.Common.ViewModels.LeaveRequest;
 using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 
-namespace OutOfOffice.BLL.Services;
+namespace OutOfOffice.Common.Services;
 
 public class EmployeeService : IEmployeeService
 {

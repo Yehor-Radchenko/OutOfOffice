@@ -1,0 +1,47 @@
+﻿@inherits LayoutComponentBase
+@inject NavigationManager Navigation
+@inject AccountService AccountService
+
+<MudThemeProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout>
+    <MudAppBar Elevation="1">
+        <AuthorizeView>
+            <Authorized>
+                <MudIconButton Icon="@Icons.Material.Filled.Menu" Color="Color.Inherit" Edge="Edge.Start" OnClick="@((e) => DrawerToggle())" />
+            </Authorized>
+            <NotAuthorized></NotAuthorized>
+        </AuthorizeView>
+        <MudText Typo="Typo.h5" Class="ml-3">Out Of Office</MudText>
+        <MudSpacer />
+        <MudIconButton Icon="@Icons.Material.Filled.MoreVert" Color="Color.Inherit" Edge="Edge.End" />
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="2">
+        <MudNavMenu>
+            <AuthorizeView>
+                <MudNavLink Href="/profile" Match="NavLinkMatch.Prefix">My profile</MudNavLink>
+                <MudNavLink Href="/employees" Match="NavLinkMatch.Prefix">Employees</MudNavLink>
+                <MudNavLink Href="/leavereq" Match="NavLinkMatch.Prefix">Leave Requests</MudNavLink>
+                <MudNavLink Href="/approvalreq" Match="NavLinkMatch.Prefix">Approval requests</MudNavLink>
+                <MudNavLink Href="/projects" Match="NavLinkMatch.Prefix">Projects</MudNavLink>
+                <MudNavLink Href="/logout" Match="NavLinkMatch.Prefix">Log Out</MudNavLink>
+            </AuthorizeView>
+        </MudNavMenu>
+    </MudDrawer>
+    <MudMainContent>
+        @Body
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    bool _drawerOpen = true;
+
+    void DrawerToggle()
+    {
+        _drawerOpen = !_drawerOpen;
+        StateHasChanged();
+    }
+}

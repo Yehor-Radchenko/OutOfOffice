@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using OutOfOffice.BLL.Dto.ApprovalRequestDto;
-using OutOfOffice.BLL.ViewModels.ApprovalRequest;
-using OutOfOffice.BLL.ViewModels.Employee;
+using OutOfOffice.Common.Dto.ApprovalRequestDto;
+using OutOfOffice.Common.ViewModels.ApprovalRequest;
+using OutOfOffice.Common.ViewModels.Employee;
 using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 
-namespace OutOfOffice.BLL.Services;
+namespace OutOfOffice.Common.Services;
 
 public class ApprovalRequestService
 {

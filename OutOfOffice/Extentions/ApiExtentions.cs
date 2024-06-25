@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using OutOfOffice.BLL.Services.Jwt;
+using OutOfOffice.Common.Services.Jwt;
 using System.Text;
 
 namespace OutOfOffice.Extentions
