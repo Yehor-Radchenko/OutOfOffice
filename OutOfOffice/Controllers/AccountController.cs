@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OutOfOffice.Common.ResponseModels;
 using OutOfOffice.Common.Services.Jwt;
 using OutOfOffice.Common.ViewModels;
 using OutOfOffice.DAL.Models;
@@ -40,8 +41,18 @@ public class AccountController : ControllerBase
                 return Unauthorized(new { Message = "Invalid login attempt." });
             }
             var token = await _jwtService.GenerateToken(user);
+            var roles = await _signInManager.UserManager.GetRolesAsync(user);
 
             _httpContextAccessor.HttpContext.Response.Cookies.Append("jwt-token", token);
+
+            AuthResponse authResponse = new AuthResponse()
+            {
+                UserId = user.Id,
+                Username = user.UserName,
+                Email = user.Email,
+                Roles = roles.ToList(),
+                Token = token,
+            };
 
             return Ok(token);
         }

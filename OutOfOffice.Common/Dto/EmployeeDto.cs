@@ -24,7 +24,7 @@ namespace OutOfOffice.Common.Dto
         public int PositionId { get; set; }
 
         [Required(ErrorMessage = "EmployeePartner is required.")]
-        public int EmployeePartnerId { get; set; }
+        public int? EmployeePartnerId { get; set; }
 
         [Required(ErrorMessage = "Balance is required.")]
         public int OutOfOfficeBalance { get; set; }

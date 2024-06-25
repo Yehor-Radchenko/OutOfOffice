@@ -8,8 +8,15 @@ using Microsoft.Extensions.Options;
 using OutOfOffice.Extentions;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
+
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
+    .CreateLogger();
+
+builder.Host.UseSerilog();
 
 builder.Services.AddControllers();
 builder.Services.AddDbContext<OutOfOfficeDbContext>(options =>
@@ -48,6 +55,7 @@ using (var scope = app.Services.CreateScope())
     var dbContext = serviceProvider.GetRequiredService<OutOfOfficeDbContext>();
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
     await SeedRolesAsync(roleManager);
+    await SeedPositionsAsync(dbContext);
 }
 
 if (app.Environment.IsDevelopment())
@@ -85,5 +93,18 @@ async Task SeedRolesAsync(RoleManager<IdentityRole<int>> roleManager)
         {
             await roleManager.CreateAsync(new IdentityRole<int>(roleName));
         }
+    }
+}
+
+async Task SeedPositionsAsync(OutOfOfficeDbContext context)
+{
+    if (!context.Positions.Any())
+    {
+        string[] positionNames = { "Junior Developer", "Middle Developer", "HR Manager", "Project Manager", "Admin" };
+
+        var positionsToAdd = positionNames.Select(name => new Position { Name = name }).ToList();
+
+        await context.Positions.AddRangeAsync(positionsToAdd);
+        await context.SaveChangesAsync();
     }
 }

@@ -6,10 +6,16 @@ using Microsoft.IdentityModel.Tokens;
 using MudBlazor.Services;
 using OutOfOffice.Common.Services.IService;
 using OutOfOffice.Common.Services.Jwt;
+using OutOfOffice.UI;
 using OutOfOffice.UI.Services;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<CustomAuthenticationStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStateProvider>();
+
 builder.Services.AddRazorPages();
 builder.Services.AddServerSideBlazor();
 builder.Services.AddMudServices();

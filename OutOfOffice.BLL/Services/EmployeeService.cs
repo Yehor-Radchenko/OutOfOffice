@@ -25,20 +25,23 @@ public class EmployeeService : IEmployeeService
 
     public async Task<int> RegisterAsync(EmployeeDto dto)
     {
-        ArgumentNullException.ThrowIfNull(nameof(dto));
+        ArgumentNullException.ThrowIfNull(dto);
 
+        // Check if employee with the same email already exists
         var existingEmployee = await _userManager.FindByEmailAsync(dto.Email);
         if (existingEmployee != null)
         {
             throw new ConflictException($"Employee with email '{dto.Email}' already exists.");
         }
 
+        // Upload photo if provided
         int photoId = 0;
         if (dto.Photo is not null && dto.Photo.Length > 0)
         {
             photoId = await UploadPhotoAsync(dto.Photo);
         }
 
+        // Create Employee entity
         var employeeModel = new Employee
         {
             UserName = dto.Email,
@@ -53,31 +56,26 @@ public class EmployeeService : IEmployeeService
         };
 
         var result = await _userManager.CreateAsync(employeeModel, dto.Password);
-
-        if (result.Succeeded)
-        {
-            employeeModel = await _userManager.FindByEmailAsync(dto.Email);
-
-            if (employeeModel == null)
-            {
-                throw new ApplicationException("Failed to retrieve the created user.");
-            }
-
-            var userManagerresult = await _userManager.AddToRoleAsync(employeeModel, "Employee");
-            if (userManagerresult.Succeeded)
-            {
-                return employeeModel.Id;
-            }
-            else
-            {
-                throw new ApplicationException($"Failed to assign role: {userManagerresult.Errors.FirstOrDefault()?.Description}");
-            }
-        }
-        else
+        if (!result.Succeeded)
         {
             throw new ApplicationException($"Failed to create user: {result.Errors.FirstOrDefault()?.Description}");
         }
+
+        employeeModel = await _userManager.FindByEmailAsync(dto.Email);
+        if (employeeModel == null)
+        {
+            throw new ApplicationException("Failed to retrieve the created user.");
+        }
+
+        var userManagerResult = await _userManager.AddToRoleAsync(employeeModel, "Employee");
+        if (!userManagerResult.Succeeded)
+        {
+            throw new ApplicationException($"Failed to assign role: {userManagerResult.Errors.FirstOrDefault()?.Description}");
+        }
+
+        return employeeModel.Id;
     }
+
 
     public async Task<int> UploadPhotoAsync(IFormFile formFile)
     {
