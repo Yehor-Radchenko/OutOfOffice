@@ -17,7 +17,7 @@ namespace OutOfOffice.UI
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            var token = _httpContextAccessor.HttpContext.Request.Cookies["token"];
+            var token = _httpContextAccessor.HttpContext.Request.Cookies["jwt-token"];
             if (string.IsNullOrEmpty(token))
             {
                 return new AuthenticationState(_anonymous);

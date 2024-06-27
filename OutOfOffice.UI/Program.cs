@@ -28,7 +28,6 @@ builder.Services.AddHttpClient("api", client =>
 
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddCascadingAuthenticationState();
-builder.Services.AddAuthorizationCore();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(JwtBearerDefaults.AuthenticationScheme, options =>
@@ -57,6 +56,9 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorPages();
 app.MapFallbackToPage("/_Host");

@@ -9,6 +9,8 @@ using OutOfOffice.Extentions;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Serilog;
+using OutOfOffice.Common.Dto;
+using System.Runtime.CompilerServices;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -54,8 +56,10 @@ using (var scope = app.Services.CreateScope())
     var serviceProvider = scope.ServiceProvider;
     var dbContext = serviceProvider.GetRequiredService<OutOfOfficeDbContext>();
     var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
+    var userManager = serviceProvider.GetRequiredService<UserManager<Employee>>();
     await SeedRolesAsync(roleManager);
     await SeedPositionsAsync(dbContext);
+    await SeedAdminAsync(dbContext, userManager);
 }
 
 if (app.Environment.IsDevelopment())
@@ -106,5 +110,21 @@ async Task SeedPositionsAsync(OutOfOfficeDbContext context)
 
         await context.Positions.AddRangeAsync(positionsToAdd);
         await context.SaveChangesAsync();
+    }
+}
+
+async Task SeedAdminAsync(OutOfOfficeDbContext context, UserManager<Employee> userManager)
+{
+    if (!context.Employees.Any()) {
+        var employee = new Employee
+        {
+            FullName = "Admin",
+            Email = "admin1234@admin.com",
+            UserName = "admin1234@admin.com",
+            PositionId = 5,
+        };
+
+        await userManager.CreateAsync(employee, "1234qwer");
+        await userManager.AddToRoleAsync(employee, "Admin");
     }
 }

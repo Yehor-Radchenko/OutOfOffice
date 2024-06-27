@@ -44,10 +44,13 @@
     {
         try
         {
-            var token = await AccountService.LoginAsync(model);
-            success = true;
-            errorMessage = null;
-            Navigation.NavigateTo("/");
+            var authResponse = await AccountService.LoginAsync(model);
+            if (authResponse != null)
+            {
+                success = true;
+                errorMessage = null;
+                Navigation.NavigateTo("/");
+            }
         }
         catch (HttpRequestException ex)
         {
