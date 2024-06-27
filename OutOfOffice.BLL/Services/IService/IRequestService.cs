@@ -1,9 +1,4 @@
-﻿using OutOfOffice.BLL.Dto;
-using OutOfOffice.BLL.ViewModels.ApprovalRequest;
-using OutOfOffice.Common.Enums;
-using OutOfOffice.DAL.Models;
-
-namespace OutOfOffice.BLL.Services.IService
+﻿namespace OutOfOffice.Common.Services.IService
 {
     internal interface IRequestService
     {

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using OutOfOffice.BLL.Dto;
-using OutOfOffice.BLL.Services;
-using OutOfOffice.BLL.ViewModels.Employee;
+using OutOfOffice.Common.Dto;
+using OutOfOffice.Common.Services;
+using OutOfOffice.Common.ViewModels.Employee;
 using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Models;
 

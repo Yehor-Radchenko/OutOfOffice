@@ -1,0 +1,61 @@
+﻿@page "/login"
+@using Microsoft.AspNetCore.Components.Forms
+@using OutOfOffice.Common.ViewModels
+@inject AccountService AccountService
+@inject NavigationManager Navigation
+
+<PageTitle>Login</PageTitle>
+
+<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+    <DataAnnotationsValidator />
+    <MudGrid>
+        <MudItem xs="12" sm="7">
+            <MudCard>
+                <MudCardContent>
+                    <MudTextField Label="Email" Class="mt-3"
+                                  @bind-Value="model.Email" />
+                    <MudTextField Label="Password" Class="mt-3"
+                                  @bind-Value="model.Password" InputType="InputType.Password" />
+                </MudCardContent>
+                <MudCardActions>
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Login</MudButton>
+                </MudCardActions>
+            </MudCard>
+        </MudItem>
+    </MudGrid>
+</EditForm>
+
+@if (success)
+{
+    <MudAlert Severity="Severity.Success" Class="mt-3">Login successful! Redirecting...</MudAlert>
+}
+
+@if (!string.IsNullOrEmpty(errorMessage))
+{
+    <MudAlert Severity="Severity.Error" Class="mt-3">@errorMessage</MudAlert>
+}
+
+@code {
+    LoginViewModel model = new LoginViewModel();
+    bool success;
+    string errorMessage;
+
+    private async Task OnValidSubmit()
+    {
+        try
+        {
+            var authResponse = await AccountService.LoginAsync(model);
+            if (authResponse != null)
+            {
+                success = true;
+                errorMessage = null;
+                Navigation.NavigateTo("/");
+            }
+        }
+        catch (HttpRequestException ex)
+        {
+            success = false;
+            errorMessage = ex.Message;
+        }
+    }
+}

@@ -36,7 +36,7 @@ namespace OutOfOffice.DAL.Models
 
         public Employee? EmployeePartner { get; set; }
 
-        public Position Position { get; set; } = new Position();
+        public Position? Position { get; set; } = null!;
 
         public ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
 

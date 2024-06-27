@@ -1,10 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using OutOfOffice.BLL.Dto;
-using OutOfOffice.BLL.Services;
-using OutOfOffice.BLL.ViewModels.LeaveRequest;
-using OutOfOffice.DAL.Models;
+using OutOfOffice.Common.Dto;
+using OutOfOffice.Common.Services;
+using OutOfOffice.Common.ViewModels.LeaveRequest;
+using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace OutOfOffice.Controllers;
@@ -14,12 +13,10 @@ namespace OutOfOffice.Controllers;
 public class LeaveRequestsController : ControllerBase
 {
     private readonly LeaveRequestService _leaveRequestService;
-    private readonly UserManager<Employee> _userManager;
 
-    public LeaveRequestsController(LeaveRequestService leaveRequestService, UserManager<Employee> userManager)
+    public LeaveRequestsController(LeaveRequestService leaveRequestService)
     {
         _leaveRequestService = leaveRequestService;
-        _userManager = userManager;
     }
 
     [Authorize]
@@ -66,13 +63,9 @@ public class LeaveRequestsController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            var user = await _userManager.GetUserAsync(User);
-            if (user == null)
-            {
-                return Unauthorized();
-            }
+            int userId = GetCurrentUserIdFromToken();
 
-            var id = await _leaveRequestService.AddAsync(user.Id, requestDto);
+            var id = await _leaveRequestService.AddAsync(userId, requestDto);
             return Ok(id);
         }
         else
@@ -85,12 +78,6 @@ public class LeaveRequestsController : ControllerBase
     [HttpPut("{id}")]
     public async Task<ActionResult> UpdateLeaveRequest(int id, LeaveRequestDto requestDto)
     {
-        var user = await _userManager.GetUserAsync(User);
-        if (user == null)
-        {
-            return Unauthorized();
-        }
-
         var success = await _leaveRequestService.UpdateAsync(id, requestDto);
         if (success)
         {
@@ -111,5 +98,13 @@ public class LeaveRequestsController : ControllerBase
             return NoContent();
         else
             return NotFound();
+    }
+
+    private int GetCurrentUserIdFromToken()
+    {
+        var getToken = HttpContext.Request.Cookies["jwt-token"];
+        var convertToken = JwtSecurityTokenConverter.Convert(new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(getToken));
+        var userId = Convert.ToInt32(convertToken.Claims.FirstOrDefault().Value);
+        return userId;
     }
 }

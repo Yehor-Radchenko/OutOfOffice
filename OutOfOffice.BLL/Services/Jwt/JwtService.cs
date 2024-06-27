@@ -10,7 +10,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OutOfOffice.BLL.Services.Jwt
+namespace OutOfOffice.Common.Services.Jwt
 {
     public class JwtService
     {
