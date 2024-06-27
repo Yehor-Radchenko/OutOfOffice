@@ -119,8 +119,8 @@ async Task SeedAdminAsync(OutOfOfficeDbContext context, UserManager<Employee> us
         var employee = new Employee
         {
             FullName = "Admin",
-            Email = "admin1234@admin.com",
-            UserName = "admin1234@admin.com",
+            Email = "admin@admin.com",
+            UserName = "admin@admin.com",
             PositionId = 5,
         };
 
