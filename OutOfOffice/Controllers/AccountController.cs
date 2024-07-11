@@ -43,8 +43,6 @@ public class AccountController : ControllerBase
             var token = await _jwtService.GenerateToken(user);
             var roles = await _signInManager.UserManager.GetRolesAsync(user);
 
-            _httpContextAccessor.HttpContext.Response.Cookies.Append("jwt-token", token);
-
             AuthResponse authResponse = new AuthResponse()
             {
                 UserId = user.Id,
@@ -54,7 +52,7 @@ public class AccountController : ControllerBase
                 Token = token,
             };
 
-            return Ok(token);
+            return Ok(authResponse);
         }
         else if (result.IsLockedOut)
         {

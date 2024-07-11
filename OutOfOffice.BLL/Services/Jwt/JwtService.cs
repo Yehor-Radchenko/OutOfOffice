@@ -3,12 +3,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using OutOfOffice.DAL.Models;
-using System;
-using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace OutOfOffice.Common.Services.Jwt
 {
@@ -33,7 +30,7 @@ namespace OutOfOffice.Common.Services.Jwt
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.NameIdentifier, employee.Id.ToString()),
-                new Claim(ClaimTypes.Email, employee.Email),
+                new Claim(ClaimTypes.Email, $"{employee.Email}"),
                 new Claim(ClaimTypes.Name, $"{employee.FullName}"),
             };
 

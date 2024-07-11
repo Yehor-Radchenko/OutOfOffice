@@ -1,52 +1,28 @@
-﻿using Microsoft.AspNetCore.Components.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿namespace OutOfOffice.UI;
+
+using Microsoft.AspNetCore.Components.Authorization;
 using System.Security.Claims;
-using System.Threading.Tasks;
 
-namespace OutOfOffice.UI
+public class CustomAuthenticationStateProvider : AuthenticationStateProvider
 {
-    public class CustomAuthenticationStateProvider : AuthenticationStateProvider
+    public override async Task<AuthenticationState> GetAuthenticationStateAsync()
     {
-        private readonly IHttpContextAccessor _httpContextAccessor;
-        private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
+        // Implement logic to get user state, e.g., from local storage or an API
+        var identity = new ClaimsIdentity();
+        return await Task.FromResult(new AuthenticationState(new ClaimsPrincipal(identity)));
+    }
 
-        public CustomAuthenticationStateProvider(IHttpContextAccessor httpContextAccessor)
-        {
-            _httpContextAccessor = httpContextAccessor;
-        }
+    public void MarkUserAsAuthenticated(string token)
+    {
+        var identity = new ClaimsIdentity(new[] { new Claim(ClaimTypes.Name, "user") }, "apiauth");
+        var user = new ClaimsPrincipal(identity);
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
+    }
 
-        public override async Task<AuthenticationState> GetAuthenticationStateAsync()
-        {
-            var token = _httpContextAccessor.HttpContext.Request.Cookies["jwt-token"];
-            if (string.IsNullOrEmpty(token))
-            {
-                return new AuthenticationState(_anonymous);
-            }
-            var identity = new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(token), "jwt");
-            var user = new ClaimsPrincipal(identity);
-            return await Task.FromResult(new AuthenticationState(user));
-        }
-
-        public void AuthenticateUser(string token)
-        {
-            var identity = new ClaimsIdentity(JwtParser.ParseClaimsFromJwt(token), "jwt");
-            var user = new ClaimsPrincipal(identity);
-            var state = new AuthenticationState(user);
-            NotifyAuthenticationStateChanged(Task.FromResult(state));
-
-            // Set the token in a cookie
-            _httpContextAccessor.HttpContext.Response.Cookies.Append("token", token, new CookieOptions
-            {
-                HttpOnly = true,
-                Secure = true, // Consider the security implications
-                Expires = DateTimeOffset.UtcNow.AddDays(1)
-            });
-        }
-
-        public void LogoutUser()
-        {
-            _httpContextAccessor.HttpContext.Response.Cookies.Delete("token");
-            NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(_anonymous)));
-        }
+    public void MarkUserAsLoggedOut()
+    {
+        var identity = new ClaimsIdentity();
+        var user = new ClaimsPrincipal(identity);
+        NotifyAuthenticationStateChanged(Task.FromResult(new AuthenticationState(user)));
     }
 }

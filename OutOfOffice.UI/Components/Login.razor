@@ -2,11 +2,12 @@
 @using Microsoft.AspNetCore.Components.Forms
 @using OutOfOffice.Common.ViewModels
 @inject AccountService AccountService
-@inject NavigationManager Navigation
+@inject NavigationManager NavigationManager
+@inject CookieService CookieService
 
 <PageTitle>Login</PageTitle>
 
-<EditForm Model="@model" OnValidSubmit="OnValidSubmit">
+<EditForm Model="@model" OnValidSubmit="HandleLogin">
     <DataAnnotationsValidator />
     <MudGrid>
         <MudItem xs="12" sm="7">
@@ -30,32 +31,21 @@
     <MudAlert Severity="Severity.Success" Class="mt-3">Login successful! Redirecting...</MudAlert>
 }
 
-@if (!string.IsNullOrEmpty(errorMessage))
-{
-    <MudAlert Severity="Severity.Error" Class="mt-3">@errorMessage</MudAlert>
-}
-
 @code {
     LoginViewModel model = new LoginViewModel();
     bool success;
-    string errorMessage;
 
-    private async Task OnValidSubmit()
+    private async Task HandleLogin()
     {
-        try
+        var responce = await AccountService.LoginAsync(model);
+        if (responce.Token != null)
         {
-            var authResponse = await AccountService.LoginAsync(model);
-            if (authResponse != null)
-            {
-                success = true;
-                errorMessage = null;
-                Navigation.NavigateTo("/");
-            }
+            await CookieService.SetCookie("jwt-token", responce.Token, 7);
+            NavigationManager.NavigateTo("/");
         }
-        catch (HttpRequestException ex)
+        else
         {
-            success = false;
-            errorMessage = ex.Message;
+            // Handle login failure
         }
     }
 }

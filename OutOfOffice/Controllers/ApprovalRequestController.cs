@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using OutOfOffice.Common.Dto.ApprovalRequestDto;
 using OutOfOffice.Common.Services;
-using OutOfOffice.DAL.Models;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace OutOfOffice.Controllers;
@@ -23,8 +21,15 @@ public class ApprovalRequestController : ControllerBase
     [HttpGet]
     public async Task<IActionResult> GetAllApprovalRequests(string? searchValue)
     {
-        var approvalRequests = await _approvalRequestService.GetAllApprovalRequestsAsync(searchValue);
-        return Ok(approvalRequests);
+        try
+        {
+            var approvalRequests = await _approvalRequestService.GetAllApprovalRequestsAsync(searchValue);
+            return Ok(approvalRequests);
+        }
+        catch (Exception ex)
+        { 
+            return BadRequest(ex.Message);
+        }
     }
 
     [HttpGet("{id}")]

@@ -5,70 +5,64 @@ using Newtonsoft.Json;
 using Exception = System.Exception;
 using OutOfOffice.Common.Exceptions;
 
-namespace OutOfOffice.Extentions;
-
-public class GlobalExceptionHandler
+namespace OutOfOffice.Extentions
 {
-    private readonly RequestDelegate _next;
-    public ProblemDetailsFactory _problemDetailsFactory;
-
-    public GlobalExceptionHandler(RequestDelegate next,
-        ProblemDetailsFactory problemDetailsFactory)
+    public class GlobalExceptionHandler
     {
-        _next = next;
-        _problemDetailsFactory = problemDetailsFactory;
-    }
-    public async Task InvokeAsync(HttpContext httpContext)
-    {
+        private readonly RequestDelegate _next;
+        private readonly ProblemDetailsFactory _problemDetailsFactory;
 
-        try
+        public GlobalExceptionHandler(RequestDelegate next, ProblemDetailsFactory problemDetailsFactory)
         {
-            await _next(httpContext);
-        }
-        catch (Exception e)
-        {
-            await HandleAsync(httpContext, e);
-        }
-    }
-
-    public async Task HandleAsync(HttpContext httpContext, Exception exception)
-    {
-        var problem = new ProblemDetails
-        {
-            Instance = httpContext.Request.Path,
-            Status = (int)HttpStatusCode.InternalServerError,
-            Detail = exception.Message
-        };
-
-        switch (exception)
-        {
-            case KeyNotFoundException keyNotFoundException:
-                problem.Status = (int)HttpStatusCode.NotFound;
-                break;
-            case ConflictException conflictException:
-                problem.Status = (int)HttpStatusCode.Conflict;
-                break;
+            _next = next;
+            _problemDetailsFactory = problemDetailsFactory;
         }
 
-        var problemDetails = new ProblemDetails();
-
-        if (_problemDetailsFactory != null)
+        public async Task InvokeAsync(HttpContext httpContext)
         {
-            problemDetails = _problemDetailsFactory.CreateProblemDetails(httpContext, problem.Status);
-
-            problem.Title = problemDetails.Title;
-            problem.Type = problemDetails.Type;
+            try
+            {
+                await _next(httpContext);
+            }
+            catch (Exception e)
+            {
+                await HandleAsync(httpContext, e);
+            }
         }
 
-
-        var result = new ObjectResult(problem)
+        public async Task HandleAsync(HttpContext httpContext, Exception exception)
         {
-            StatusCode = problem.Status
-        };
+            var problem = new ProblemDetails
+            {
+                Instance = httpContext.Request.Path,
+                Status = (int)HttpStatusCode.InternalServerError,
+                Detail = exception.Message
+            };
 
-        var response = JsonConvert.SerializeObject(result.Value);
-        httpContext.Response.ContentType = "application/problem+json";
-        await httpContext.Response.WriteAsync(response);
+            switch (exception)
+            {
+                case KeyNotFoundException _:
+                    problem.Status = (int)HttpStatusCode.NotFound;
+                    break;
+                case ConflictException _:
+                    problem.Status = (int)HttpStatusCode.Conflict;
+                    break;
+                case UnauthorizedAccessException _:
+                    problem.Status = (int)HttpStatusCode.Unauthorized;
+                    break;
+            }
 
+            if (_problemDetailsFactory != null)
+            {
+                var problemDetails = _problemDetailsFactory.CreateProblemDetails(httpContext, problem.Status);
+                problem.Title = problemDetails.Title;
+                problem.Type = problemDetails.Type;
+            }
+
+            var response = JsonConvert.SerializeObject(problem);
+            httpContext.Response.ContentType = "application/problem+json";
+            httpContext.Response.StatusCode = problem.Status ?? (int)HttpStatusCode.InternalServerError;
+            await httpContext.Response.WriteAsync(response);
+        }
     }
 }

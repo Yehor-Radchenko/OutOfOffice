@@ -27,6 +27,7 @@ builder.Services.AddHttpClient("api", client =>
 });
 
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<CookieService>();
 builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
