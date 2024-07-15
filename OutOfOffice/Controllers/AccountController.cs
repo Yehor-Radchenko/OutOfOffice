@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.ResponseModels;
 using OutOfOffice.Common.Services.Jwt;
-using OutOfOffice.Common.ViewModels;
 using OutOfOffice.DAL.Models;
 
 namespace OutOfOffice.Controllers;
@@ -24,7 +24,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("login")]
-    public async Task<IActionResult> Login(LoginViewModel model)
+    public async Task<IActionResult> Login(LoginDto model)
     {
         if (!ModelState.IsValid)
         {

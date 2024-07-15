@@ -1,0 +1,21 @@
+﻿@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigetionManager
+
+@code {
+    [CascadingParameter]
+    private Task<AuthenticationState> AuthentificationStateTask { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthentificationStateTask;
+
+        if (authState?.User?.Identity == null || !authState.User.Identity.IsAuthenticated)
+        {
+            var returnUrl = this.NavigetionManager.ToBaseRelativePath(this.NavigetionManager.Uri);
+            if (string.IsNullOrEmpty(returnUrl))
+                this.NavigetionManager.NavigateTo("/login", true);
+            else
+                this.NavigetionManager.NavigateTo("/login?returnUrl=" + returnUrl, true);
+        }
+    }
+}
