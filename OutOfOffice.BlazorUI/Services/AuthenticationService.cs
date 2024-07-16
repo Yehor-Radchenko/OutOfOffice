@@ -3,8 +3,6 @@ using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
 using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.ResponseModels;
-using System.Net.Http;
-using System.Threading.Tasks;
 
 namespace OutOfOffice.BlazorUI.Services
 {
@@ -36,6 +34,7 @@ namespace OutOfOffice.BlazorUI.Services
                 if (deserializedResponse != null)
                 {
                     await _localStorageService.SetItemAsync("token", deserializedResponse.Token);
+                    StateHasChanged();
                 }
 
                 return deserializedResponse;
@@ -51,6 +50,14 @@ namespace OutOfOffice.BlazorUI.Services
         {
             await _localStorageService.RemoveItemAsync("token");
             ((CustomAuthenticationStateProvider)_authenticationStateProvider).MarkUserAsLoggedOut();
+        }
+
+        private void StateHasChanged()
+        {
+            if (_authenticationStateProvider is CustomAuthenticationStateProvider customAuthProvider)
+            {
+                customAuthProvider.MarkUserStateAsChanged();
+            }
         }
     }
 }

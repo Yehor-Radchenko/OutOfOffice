@@ -1,7 +1,6 @@
 ﻿@layout LoginLayout
 @page "/login"
 @attribute [AllowAnonymous]
-@inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
 
 @using Microsoft.AspNetCore.Authorization
@@ -64,6 +63,9 @@
 @code {
     [SupplyParameterFromForm]
     public LoginDto? Model { get; set; }
+
+    [Inject]
+    private IAuthenticationService AuthenticationService { get; set; }
 
     bool success;
     string? errorMessage;
