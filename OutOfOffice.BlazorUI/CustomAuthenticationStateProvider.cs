@@ -1,5 +1,6 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
+using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
@@ -8,14 +9,12 @@ namespace OutOfOffice.BlazorUI
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
-        private readonly ILocalStorageService _localStorage;
-        private readonly HttpClient _http;
+        private readonly ILocalStorageService _localStorageService;
         private bool _initialized = false;
 
-        public CustomAuthenticationStateProvider(ILocalStorageService localStorage, HttpClient http)
+        public CustomAuthenticationStateProvider(ILocalStorageService localStorageService)
         {
-            _localStorage = localStorage;
-            _http = http;
+            _localStorageService = localStorageService;
         }
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
@@ -26,20 +25,17 @@ namespace OutOfOffice.BlazorUI
                 return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity()));
             }
 
-            string? token = await _localStorage.GetItemAsStringAsync("token");
+            string? token = await _localStorageService.GetItemAsStringAsync("token");
             if (string.IsNullOrEmpty(token))
             {
                 throw new InvalidOperationException("The authentication token is missing.");
             }
 
             var identity = new ClaimsIdentity();
-            _http.DefaultRequestHeaders.Authorization = null;
 
             if (!string.IsNullOrEmpty(token))
             {
                 identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
-                _http.DefaultRequestHeaders.Authorization =
-                    new AuthenticationHeaderValue("Bearer", token.Replace("\"", ""));
             }
 
             var user = new ClaimsPrincipal(identity);
@@ -79,11 +75,6 @@ namespace OutOfOffice.BlazorUI
             var state = new AuthenticationState(user);
 
             NotifyAuthenticationStateChanged(Task.FromResult(state));
-        }
-
-        public void MarkUserStateAsChanged()
-        {
-            NotifyAuthenticationStateChanged(GetAuthenticationStateAsync());
         }
     }
 }

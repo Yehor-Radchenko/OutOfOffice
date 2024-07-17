@@ -2,7 +2,11 @@
 @page "/login"
 @attribute [AllowAnonymous]
 @inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorageService
+@inject IAuthenticationService AuthenticationService
+@rendermode @(new InteractiveServerRenderMode(false))
 
+@using Blazored.LocalStorage
 @using Microsoft.AspNetCore.Authorization
 @using MudBlazor
 @using OutOfOffice.BlazorUI.Components.Layout
@@ -18,7 +22,7 @@
                      class="img-fluid" alt="Sample image">
             </div>
             <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
-                <EditForm Model="@Model" OnValidSubmit="OnValidSubmit" FormName="LoginForm">
+                <EditForm Model="@Model" OnValidSubmit="OnValidSubmit">
                     <DataAnnotationsValidator />
                     <ValidationSummary />
                     <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start">
@@ -53,7 +57,6 @@
                             Login
                         </button>
                     </div>
-
                 </EditForm>
             </div>
         </div>
@@ -61,17 +64,11 @@
 </section>
 
 @code {
-    [SupplyParameterFromForm]
-    public LoginDto? Model { get; set; }
-
-    [Inject]
-    private IAuthenticationService AuthenticationService { get; set; }
-
-    bool success;
-    string? errorMessage;
-
-    protected override void OnInitialized() =>
-        Model ??= new LoginDto();
+    private LoginDto Model { get; set; } = new();
+    private bool success;
+    private string? errorMessage;
+    private bool loginSucceeded;
+    private string? token;
 
     private async Task OnValidSubmit()
     {
@@ -81,8 +78,12 @@
             if (authResponse != null)
             {
                 success = true;
+                token = authResponse.Token;
+                loginSucceeded = true;
                 errorMessage = null;
-                this.NavigationManager.NavigateTo("/");
+                await LocalStorageService.SetItemAsync("token", token);
+                NavigationManager.NavigateTo, forceLoad: true);
+                StateHasChanged();
             }
         }
         catch (HttpRequestException)
