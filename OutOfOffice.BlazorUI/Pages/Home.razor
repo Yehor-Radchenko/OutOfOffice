@@ -1,0 +1,25 @@
+﻿@page "/"
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<h1>Welcome to Out of Office!</h1>
+<p>Navigate through app using menu on the right side of the screen.</p>
+
+@code {
+    private bool isAuthenticated;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        isAuthenticated = user.Identity.IsAuthenticated;
+
+        if (!isAuthenticated)
+        {
+            Navigation.NavigateTo("/login");
+        }
+    }
+}

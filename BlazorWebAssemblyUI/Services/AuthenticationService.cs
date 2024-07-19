@@ -1,14 +1,14 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
 using Newtonsoft.Json;
+using BlazorWebAssemblyUI.Services.Contracts;
 using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.ResponseModels;
 using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
-using OutOfOffice.BlazorUI.Services.Contracts;
 
-namespace OutOfOffice.BlazorUI.Services
+namespace BlazorWebAssemblyUI.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
@@ -17,11 +17,11 @@ namespace OutOfOffice.BlazorUI.Services
         private readonly ILocalStorageService _localStorageService;
 
         public AuthenticationService(
-            HttpClient httpClient,
+            IHttpClientFactory httpClient,
             AuthenticationStateProvider authenticationStateProvider,
             ILocalStorageService localStorageService)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClient.CreateClient("api");
             _authenticationStateProvider = authenticationStateProvider;
             _localStorageService = localStorageService;
         }

@@ -5,7 +5,7 @@ using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 
-namespace OutOfOffice.BlazorUI
+namespace BlazorWebAssemblyUI
 {
     public class CustomAuthenticationStateProvider : AuthenticationStateProvider
     {
@@ -20,7 +20,7 @@ namespace OutOfOffice.BlazorUI
 
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
-            string? token = await _localStorageService.GetItemAsStringAsync("token");
+            string? token = _localStorageService.GetItemAsync<string>("token").ToString();
             if (string.IsNullOrEmpty(token))
             {
                 return new AuthenticationState(_anonymous);

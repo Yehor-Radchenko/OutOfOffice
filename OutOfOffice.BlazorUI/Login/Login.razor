@@ -1,0 +1,110 @@
+﻿@layout LoginLayout
+@page "/login"
+@attribute [AllowAnonymous]
+@inject NavigationManager NavigationManager
+@inject ILocalStorageService LocalStorage
+@inject IAuthenticationService AuthenticationService
+@inject AuthenticationStateProvider AuthenticationStateProvider;
+
+@using OutOfOffice.BlazorUI.Layout
+@using Blazored.LocalStorage
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Components.Forms
+@using OutOfOffice.BlazorUI.Services
+@using System.ComponentModel.DataAnnotations
+@using OutOfOffice.BlazorUI.Services.Contracts
+@using OutOfOffice.Common.Dto
+
+<section class="vh-100">
+    <div class="container-fluid h-custom">
+        <div class="row d-flex justify-content-center align-items-center h-100">
+            <div class="col-md-9 col-lg-6 col-xl-5">
+                <img src="https://mdbcdn.b-cdn.net/img/Photos/new-templates/bootstrap-login-form/draw2.webp"
+                     class="img-fluid" alt="Sample image">
+            </div>
+            <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
+                <EditForm Model="@Model" OnValidSubmit="OnValidSubmit" FormName="LoginForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+                    <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start p-3">
+                        <p class="lead fw-normal mb-0 me-3">Sign in</p>
+                    </div>
+
+                    <!-- Error message -->
+                    @if (!string.IsNullOrEmpty(errorMessage))
+                    {
+                        <div class="alert alert-danger" role="alert">
+                            @errorMessage
+                        </div>
+                    }
+
+                    <!-- Email input -->
+                    <div class="form-outline mb-4">
+                        <InputText id="form3Example3" class="form-control form-control-lg"
+                                   placeholder="Email address" @bind-Value="Model.Email" />
+                        <ValidationMessage For="@(() => Model.Email)" />
+                    </div>
+
+                    <!-- Password input -->
+                    <div class="form-outline mb-3">
+                        <InputText class="form-control form-control-lg"
+                                   placeholder="Password" @bind-Value="Model.Password" type="password" />
+                        <ValidationMessage For="@(() => Model.Password)" />
+                    </div>
+
+                    <div class="text-center text-lg-start mt-4 pt-2">
+                        <button type="submit" class="btn btn-primary btn-lg"
+                                style="padding-left: 2.5rem; padding-right: 2.5rem;">
+                            Login
+                        </button>
+                    </div>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+</section>
+
+@code {
+    [SupplyParameterFromForm]
+    private LoginDto Model { get; set; } = new();
+    private bool success;
+    private string? errorMessage;
+    private bool loginSucceeded;
+    private string? token;
+
+    private async Task OnValidSubmit()
+    {
+        try
+        {
+            var authResponse = await AuthenticationService.LoginAsync(Model);
+            if (authResponse != null)
+            {
+                success = true;
+                token = authResponse.Token;
+                loginSucceeded = true;
+                errorMessage = null;
+                await LocalStorage.SetItemAsync("token", token);
+                await AuthenticationStateProvider.GetAuthenticationStateAsync();
+                NavigationManager.NavigateTo("/", true);
+
+            }
+        }
+        catch (HttpRequestException)
+        {
+            success = false;
+            errorMessage = "Login failed. Please check your email and password.";
+        }
+    }
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //         await LocalStorage.SetAsync("token", token);
+    //         await AuthenticationStateProvider.GetAuthenticationStateAsync();
+    //         NavigationManager.NavigateTo("/");
+    //         StateHasChanged();
+    //     }
+    // }
+}

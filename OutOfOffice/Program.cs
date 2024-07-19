@@ -4,8 +4,20 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Microsoft.AspNetCore.Http;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowBlazorClient",
+        policy => policy
+            .WithOrigins("https://localhost:7109/")
+            .SetIsOriginAllowed((host) => true)
+            .AllowAnyMethod()
+            .AllowAnyHeader()
+            .AllowCredentials());
+});
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
@@ -39,5 +51,7 @@ app.UseStatusCodePages(async context =>
         await response.WriteAsync(JsonConvert.SerializeObject(problem));
     }
 });
+
+app.UseCors("AllowBlazorClient");
 
 app.Run();

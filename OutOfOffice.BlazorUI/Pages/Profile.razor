@@ -1,0 +1,77 @@
+﻿@page "/profile"
+@inject IEmployeeService EmployeeService
+@inject ILocalStorageService LocalStorageService
+@inject HttpClient HttpClient
+
+@using Blazored.LocalStorage
+@using OutOfOffice.BlazorUI.Services
+@using OutOfOffice.BlazorUI.Services.Contracts
+@using OutOfOffice.Common.ViewModels.Employee
+@using System.Net.Http.Headers
+
+<div class="profile-info" @if(ViewModel= =null) { style="display: none;" }>
+    <div class="profile-photo">
+        <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(ViewModel?.Photo)}")" alt="Profile Photo" />
+    </div>
+    <div class="profile-details">
+        <p><strong>Position:</strong> @ViewModel?.Position</p>
+        <p><strong>Subdivision:</strong> @ViewModel?.Subdivision</p>
+        <p><strong>Status:</strong> @ViewModel?.Status</p>
+        <p><strong>Out of Office Balance:</strong> @ViewModel?.OutOfOfficeBalance</p>
+
+        @if (ViewModel?.EmployeePartnerInfo != null)
+        {
+            <p><strong>Partner:</strong> @ViewModel?.EmployeePartnerInfo.FullName</p>
+        }
+
+        @if (ViewModel?.SubordinateEmployees != null && ViewModel.SubordinateEmployees.Any())
+        {
+            <p><strong>Subordinates:</strong></p>
+            <ul>
+                @foreach (var subordinate in ViewModel.SubordinateEmployees)
+                {
+                    <li>@subordinate.FullName</li>
+                }
+            </ul>
+        }
+
+        @if (ViewModel?.LeaveRequests != null && ViewModel.LeaveRequests.Any())
+        {
+            <p><strong>Leave Requests:</strong></p>
+            <ul>
+                @foreach (var request in ViewModel.LeaveRequests)
+                {
+                    <li>@request.StartDate - @request.EndDate - AbsenceReason: @request.AbsenceReason - Status: @request.Status</li>
+                }
+            </ul>
+        }
+
+        @if (ViewModel?.ProjectIds != null && ViewModel.ProjectIds.Any())
+        {
+            <p><strong>Projects:</strong></p>
+            <ul>
+                @foreach (var projectId in ViewModel.ProjectIds)
+                {
+                    <li>Project ID: @projectId</li>
+                }
+            </ul>
+        }
+    </div>
+</div>
+
+@if (ViewModel == null)
+{
+    <p>Loading...</p>
+}
+
+@code {
+    [Parameter]
+    public FullEmployeeViewModel ViewModel { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        string? authToken = await LocalStorageService.GetItemAsStringAsync("token");
+        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+        ViewModel = await EmployeeService.GetFullInfoAboutAuthenticatedEmployeeAsync();
+    }
+}

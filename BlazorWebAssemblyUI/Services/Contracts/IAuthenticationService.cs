@@ -1,7 +1,7 @@
 ﻿using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.ResponseModels;
 
-namespace OutOfOffice.BlazorUI.Services
+namespace BlazorWebAssemblyUI.Services.Contracts
 {
     public interface IAuthenticationService
     {
