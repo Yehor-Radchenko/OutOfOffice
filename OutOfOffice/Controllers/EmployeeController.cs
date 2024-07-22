@@ -6,6 +6,7 @@ using OutOfOffice.Common.Services;
 using OutOfOffice.Common.ViewModels.Employee;
 using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Models;
+using System.Security.Claims;
 
 namespace OutOfOffice.Controllers;
 
@@ -14,12 +15,10 @@ namespace OutOfOffice.Controllers;
 public class EmployeeController : ControllerBase
 {
     private readonly EmployeeService _employeeService;
-    private readonly UserManager<Employee> _userManager;
-
+    
     public EmployeeController (EmployeeService employeeService, UserManager<Employee> userManager)
     {
         _employeeService = employeeService;
-        _userManager = userManager;
     }
 
     [HttpGet("table-data")]
@@ -49,14 +48,21 @@ public class EmployeeController : ControllerBase
         return result;
     }
 
-    [HttpGet]
+    [HttpGet("profile")]
     [Authorize]
-    public async Task<FullEmployeeViewModel> GetFullInfoAboutAuthentificatedEmployee()
+    public async Task<ActionResult<FullEmployeeViewModel>> GetMyProfile()
     {
-        var result = await _employeeService.GetFullInfoByIdAsync(int.Parse(_userManager.GetUserId(User)));
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
 
-        return result;
+        if (userId == null)
+        {
+            return Unauthorized();
+        }
+
+        var result = await _employeeService.GetFullInfoByIdAsync(int.Parse(userId));
+        return Ok(result);
     }
+
 
     [HttpPost]
     [Authorize(Roles = "HRManager,ProjectManager,Admin")]

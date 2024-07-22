@@ -45,10 +45,6 @@ public class AccountController : ControllerBase
 
             AuthResponse authResponse = new AuthResponse()
             {
-                UserId = user.Id,
-                Username = user.UserName,
-                Email = user.Email,
-                Roles = roles.ToList(),
                 Token = token,
             };
 

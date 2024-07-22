@@ -1,7 +1,6 @@
 ﻿@page "/profile"
 @inject IEmployeeService EmployeeService
 @inject ILocalStorageService LocalStorageService
-@inject HttpClient HttpClient
 
 @using Blazored.LocalStorage
 @using OutOfOffice.BlazorUI.Services
@@ -9,9 +8,16 @@
 @using OutOfOffice.Common.ViewModels.Employee
 @using System.Net.Http.Headers
 
-<div class="profile-info" @if(ViewModel= =null) { style="display: none;" }>
+<div class="profile-info">
     <div class="profile-photo">
-        <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(ViewModel?.Photo)}")" alt="Profile Photo" />
+        @if (ViewModel?.Photo != null && ViewModel.Photo.Length > 0)
+        {
+            <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(ViewModel.Photo)}")" alt="Profile Photo" />
+        }
+        else
+        {
+            <img src="images/default_profile_image.jpg" alt="Default Profile Photo" />
+        }
     </div>
     <div class="profile-details">
         <p><strong>Position:</strong> @ViewModel?.Position</p>
@@ -71,7 +77,6 @@
     protected override async Task OnInitializedAsync()
     {
         string? authToken = await LocalStorageService.GetItemAsStringAsync("token");
-        HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
         ViewModel = await EmployeeService.GetFullInfoAboutAuthenticatedEmployeeAsync();
     }
 }

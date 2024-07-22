@@ -17,11 +17,11 @@ namespace OutOfOffice.BlazorUI.Services
         private readonly ILocalStorageService _localStorageService;
 
         public AuthenticationService(
-            HttpClient httpClient,
+            IHttpClientFactory httpClientFactory,
             AuthenticationStateProvider authenticationStateProvider,
             ILocalStorageService localStorageService)
         {
-            _httpClient = httpClient;
+            _httpClient = httpClientFactory.CreateClient("API");
             _authenticationStateProvider = authenticationStateProvider;
             _localStorageService = localStorageService;
         }

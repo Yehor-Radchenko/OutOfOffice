@@ -29,9 +29,5 @@
 </div>
 
 @code {
-    private async Task Logout()
-    {
-        await AuthenticationService.LogoutAsync();
-        NavigationManager.NavigateTo(NavigationManager.Uri, true);
-    }
+    private void Logout() => NavigationManager.NavigateTo("/logout", true);
 }
