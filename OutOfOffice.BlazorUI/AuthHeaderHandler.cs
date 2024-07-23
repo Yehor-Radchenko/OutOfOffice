@@ -1,19 +1,25 @@
 ﻿using Blazored.LocalStorage;
+using System.Net.Http.Headers;
 
 namespace OutOfOffice.BlazorUI
 {
-    public class CustomHttpHandler : DelegatingHandler
+    public class AuthHeaderHandler : DelegatingHandler
     {
         private readonly ILocalStorageService _localStorageService;
 
-        public CustomHttpHandler(ILocalStorageService localStorageService)
+        public AuthHeaderHandler(ILocalStorageService localStorageService)
         {
             _localStorageService = localStorageService;
         }
+
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
             var authToken = await _localStorageService.GetItemAsync<string>("token");
-            request.Headers.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", authToken);
+            if (!string.IsNullOrEmpty(authToken))
+            {
+                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", authToken);
+            }
+
             return await base.SendAsync(request, cancellationToken);
         }
     }

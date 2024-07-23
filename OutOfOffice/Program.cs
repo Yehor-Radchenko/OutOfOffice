@@ -15,8 +15,7 @@ builder.Services.AddCors(options =>
             .WithOrigins("https://localhost:7109/")
             .SetIsOriginAllowed((host) => true)
             .AllowAnyMethod()
-            .AllowAnyHeader()
-            .AllowCredentials());
+            .AllowAnyHeader());
 });
 
 Log.Logger = new LoggerConfiguration()
