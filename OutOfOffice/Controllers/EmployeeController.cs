@@ -12,6 +12,7 @@ namespace OutOfOffice.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class EmployeeController : ControllerBase
 {
     private readonly EmployeeService _employeeService;
@@ -62,7 +63,6 @@ public class EmployeeController : ControllerBase
         var result = await _employeeService.GetFullInfoByIdAsync(int.Parse(userId));
         return Ok(result);
     }
-
 
     [HttpPost]
     [Authorize(Roles = "HRManager,ProjectManager,Admin")]

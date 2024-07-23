@@ -12,7 +12,6 @@ namespace OutOfOffice.BlazorUI
         private readonly ILocalStorageService _localStorageService;
         private ClaimsPrincipal _anonymous = new ClaimsPrincipal(new ClaimsIdentity());
 
-
         public CustomAuthenticationStateProvider(ILocalStorageService localStorageService)
         {
             _localStorageService = localStorageService;
@@ -28,9 +27,14 @@ namespace OutOfOffice.BlazorUI
 
             var identity = new ClaimsIdentity();
 
-            if (!string.IsNullOrEmpty(token))
+            if (!string.IsNullOrEmpty(token) && !IsTokenExpired(token))
             {
                 identity = new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt");
+            }
+            else
+            {
+                await _localStorageService.RemoveItemAsync("token");
+                MarkUserAsLoggedOut();
             }
 
             var user = new ClaimsPrincipal(identity);
@@ -39,6 +43,18 @@ namespace OutOfOffice.BlazorUI
             NotifyAuthenticationStateChanged(Task.FromResult(state));
 
             return state;
+        }
+
+        private bool IsTokenExpired(string token)
+        {
+            var claims = ParseClaimsFromJwt(token);
+            var expClaim = claims.FirstOrDefault(c => c.Type.Equals("exp"));
+            if (expClaim != null)
+            {
+                var expTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim.Value));
+                return expTime < DateTimeOffset.UtcNow;
+            }
+            return true; // If there's no expiration claim, consider the token as expired
         }
 
         public static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)

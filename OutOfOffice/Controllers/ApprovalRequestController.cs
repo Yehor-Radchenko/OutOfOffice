@@ -8,7 +8,7 @@ namespace OutOfOffice.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize(Roles = "HRManager,ProjectManager,Admin")]
+[Authorize(Roles = "HRManager,ProjectManager,Admin", AuthenticationSchemes = "Bearer")]
 public class ApprovalRequestController : ControllerBase
 {
     private readonly ApprovalRequestService _approvalRequestService;

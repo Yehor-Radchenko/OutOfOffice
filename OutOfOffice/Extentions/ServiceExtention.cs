@@ -12,6 +12,7 @@ using Microsoft.Extensions.Options;
 using OutOfOffice.Extentions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
+using Microsoft.OpenApi.Models;
 
 public static class ServiceExtensions
 {
@@ -20,10 +21,6 @@ public static class ServiceExtensions
         services.AddControllers();
         services.AddDbContext<OutOfOfficeDbContext>(options =>
             options.UseSqlServer(configuration.GetConnectionString("DefaultConnection") ?? throw new InvalidOperationException("Connection string not found.")));
-
-        services.AddApiAuthentification(services.BuildServiceProvider().GetRequiredService<IOptions<JwtOptions>>());
-
-        services.Configure<JwtOptions>(configuration.GetSection(nameof(JwtOptions)));
 
         services.AddIdentity<Employee, IdentityRole<int>>(options =>
         {
@@ -69,7 +66,31 @@ public static class ServiceExtensions
 
 
         services.AddEndpointsApiExplorer();
-        services.AddSwaggerGen();
+        services.AddSwaggerGen(options =>
+        {
+            options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme()
+            {
+                Name = "Authorization",
+                In = ParameterLocation.Header,
+                Type = SecuritySchemeType.Http,
+                Scheme = "Bearer"
+            });
+
+            options.AddSecurityRequirement(new OpenApiSecurityRequirement
+            {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "Bearer"
+                        }
+                    },
+                    Array.Empty<string>()
+                }
+            });
+        });
 
         services.AddScoped<JwtService>();
         services.AddScoped<EmployeeService>();
@@ -85,6 +106,8 @@ public static class ServiceExtensions
             app.UseSwagger();
             app.UseSwaggerUI();
         }
+
+        app.UseCors("AllowBlazorClient");
 
         app.UseMiddleware<GlobalExceptionHandler>();
         app.UseHttpsRedirection();

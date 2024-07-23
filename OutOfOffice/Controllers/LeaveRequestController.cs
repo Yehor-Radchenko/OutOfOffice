@@ -10,6 +10,7 @@ namespace OutOfOffice.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize(AuthenticationSchemes = "Bearer")]
 public class LeaveRequestsController : ControllerBase
 {
     private readonly LeaveRequestService _leaveRequestService;

@@ -5,6 +5,10 @@ using System.Net;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Http;
+using Microsoft.IdentityModel.Tokens;
+using OutOfOffice.Common.Services.Jwt;
+using System.Text;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,14 +19,47 @@ builder.Services.AddCors(options =>
             .WithOrigins("https://localhost:7109/")
             .SetIsOriginAllowed((host) => true)
             .AllowAnyMethod()
-            .AllowAnyHeader());
+            .AllowAnyHeader()
+            .AllowCredentials());
 });
 
 Log.Logger = new LoggerConfiguration()
     .WriteTo.File("Logs/log-.txt", rollingInterval: RollingInterval.Day)
     .CreateLogger();
 
+
+
 builder.Host.UseSerilog();
+
+builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(nameof(JwtOptions)));
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    var jwtOptions = builder.Configuration.GetSection("JwtOptions").Get<JwtOptions>();
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtOptions.SecretKey)),
+        ValidateIssuer = false,
+        ValidateAudience = false,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtOptions.Issuer,
+        ValidAudience = jwtOptions.Audience,
+    };
+});
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("RequireHRManagerRole", policy => policy.RequireRole("HRManager"));
+    options.AddPolicy("RequireProjectManagerRole", policy => policy.RequireRole("ProjectManager"));
+    options.AddPolicy("RequireEmployeeRole", policy => policy.RequireRole("Employee"));
+    options.AddPolicy("Admin", policy => policy.RequireRole("Admin"));
+});
 
 builder.Services.ConfigureServices(builder.Configuration);
 
@@ -50,7 +87,5 @@ app.UseStatusCodePages(async context =>
         await response.WriteAsync(JsonConvert.SerializeObject(problem));
     }
 });
-
-app.UseCors("AllowBlazorClient");
 
 app.Run();

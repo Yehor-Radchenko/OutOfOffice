@@ -7,12 +7,13 @@ using System.Net.Http;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using OutOfOffice.BlazorUI.Services.Contracts;
+using System.Security.Cryptography.X509Certificates;
 
 namespace OutOfOffice.BlazorUI.Services
 {
     public class AuthenticationService : IAuthenticationService
     {
-        private readonly HttpClient _httpClient;
+        private readonly IHttpClientFactory _factory;
         private readonly AuthenticationStateProvider _authenticationStateProvider;
         private readonly ILocalStorageService _localStorageService;
 
@@ -21,14 +22,14 @@ namespace OutOfOffice.BlazorUI.Services
             AuthenticationStateProvider authenticationStateProvider,
             ILocalStorageService localStorageService)
         {
-            _httpClient = httpClientFactory.CreateClient("API");
+            _factory = httpClientFactory;
             _authenticationStateProvider = authenticationStateProvider;
             _localStorageService = localStorageService;
         }
 
         public async Task<AuthResponse?> LoginAsync(LoginDto model)
         {
-            var response = await _httpClient.PostAsJsonAsync("api/account/login", model);
+            var response = await _factory.CreateClient("API").PostAsJsonAsync("api/account/login", model);
 
             if (response.IsSuccessStatusCode)
             {

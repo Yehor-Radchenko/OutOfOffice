@@ -9,7 +9,7 @@ namespace OutOfOffice.API.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    [Authorize(Roles = "ProjectManager,Admin")]
+    [Authorize(Roles = "ProjectManager,Admin", AuthenticationSchemes = "Bearer")]
     public class ProjectController : ControllerBase
     {
         private readonly ProjectService _projectService;
