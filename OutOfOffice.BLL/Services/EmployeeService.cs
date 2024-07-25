@@ -47,7 +47,7 @@ public class EmployeeService : IEmployeeService
             UserName = dto.Email,
             Email = dto.Email,
             FullName = dto.FullName,
-            Subdivision = dto.Subdivision,
+            SubdivisionId = dto.SubdivisionId,
             PositionId = dto.PositionId,
             Status = EmployeeStatus.Active,
             EmployeePartnerId = dto.EmployeePartnerId != 0 ? dto.EmployeePartnerId : null,
@@ -141,14 +141,17 @@ public class EmployeeService : IEmployeeService
             .Include(e => e.Projects)
             .Include(e => e.LeaveRequests)
                 .ThenInclude(lr => lr.ApprovalRequest)
+            .Include(e => e.LeaveRequests)
+                .ThenInclude(lr => lr.AbsenceReason)
             .Include(e => e.Photo)
             .Include(e => e.Position)
+            .Include(e => e.Subdivision)
             .Where(e => e.Id == id)
             .Select(e => new FullEmployeeViewModel
             {
                 Id = e.Id,
                 FullName = e.FullName,
-                Subdivision = e.Subdivision,
+                Subdivision = e.Subdivision.Name,
                 Status = e.Status.ToString(),
                 OutOfOfficeBalance = e.OutOfOfficeBalance,
                 Photo = e.Photo != null ? e.Photo.Base64Data : null,
@@ -173,7 +176,7 @@ public class EmployeeService : IEmployeeService
                     .Select(lr => new EmployeeLeaveRequestViewModel
                     {
                         Id = lr.Id,
-                        AbsenceReason = lr.AbsenceReason.ToString(),
+                        AbsenceReason = lr.AbsenceReason.ReasonTitle,
                         StartDate = lr.StartDate,
                         EndDate = lr.EndDate,
                         Comment = lr.Comment,
@@ -195,11 +198,13 @@ public class EmployeeService : IEmployeeService
 
     public async Task<List<TableEmployeeViewModel>> GetTableDataAsync(string? searchValue = null)
     {
-        var query = _context.Employees.AsQueryable();
+        var query = _context.Employees
+            .Include(e => e.Subdivision)
+            .AsQueryable();
 
         if (!string.IsNullOrEmpty(searchValue))
         {
-            query = query.Where(e => e.FullName.Contains(searchValue) || e.Subdivision.Contains(searchValue));
+            query = query.Where(e => e.FullName.Contains(searchValue) || e.Subdivision.Name.Contains(searchValue));
         }
 
         var employees = await query.ToListAsync();
@@ -208,7 +213,7 @@ public class EmployeeService : IEmployeeService
         {
             Id = e.Id,
             FullName = e.FullName,
-            Subdivision = e.Subdivision,
+            Subdivision = e.Subdivision.Name,
             PositionId = e.PositionId,
             Status = e.Status.ToString(),
             EmployeePartnerId = e.EmployeePartnerId,
@@ -231,7 +236,7 @@ public class EmployeeService : IEmployeeService
         }
 
         employee.FullName = expectedEntityValues.FullName;
-        employee.Subdivision = expectedEntityValues.Subdivision;
+        employee.SubdivisionId = expectedEntityValues.SubdivisionId;
         employee.PositionId = expectedEntityValues.PositionId;
         employee.EmployeePartnerId = expectedEntityValues.EmployeePartnerId;
         employee.OutOfOfficeBalance = expectedEntityValues.OutOfOfficeBalance;

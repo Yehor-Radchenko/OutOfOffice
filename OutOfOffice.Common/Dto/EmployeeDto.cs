@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Http;
-using OutOfOffice.Common.ValidationAttributes;
 using System.ComponentModel.DataAnnotations;
 
 namespace OutOfOffice.Common.Dto
@@ -17,8 +16,7 @@ namespace OutOfOffice.Common.Dto
         public string Password { get; set; } = null!;
 
         [Required(ErrorMessage = "Subdivision is required.")]
-        [ValidSubdivision(ErrorMessage = "The provided Subdivision is not valid.")]
-        public string Subdivision { get; set; } = null!;
+        public int SubdivisionId { get; set; }
 
         [Required(ErrorMessage = "Position is required.")]
         public int PositionId { get; set; }

@@ -40,24 +40,29 @@ namespace OutOfOffice.DAL.Seed
             }
         }
 
+       
+
         public static async Task SeedEmployeesAsync(OutOfOfficeDbContext context, UserManager<Employee> userManager)
         {
             if (!await context.Employees.AnyAsync())
             {
+                await SeedSubdivisionsAsync(context);
+                await SeedAbsenceReasonsAsync(context);
+
                 string[] imageFilePaths = Directory.GetFiles("../OutOfOffice.DAL/Seed/Images");
 
                 var employees = new Employee[]
                 {
-                    new Employee { FullName = "Admin", Email = "admin@admin.com", UserName = "admin@admin.com", PositionId = 5, Status = EmployeeStatus.Active, OutOfOfficeBalance = 10 },
-                    new Employee { FullName = "John Doe", Email = "john.doe@example.com", UserName = "john.doe@example.com", PositionId = 1, Status = EmployeeStatus.Active, OutOfOfficeBalance = 15 },
-                    new Employee { FullName = "Jane Smith", Email = "jane.smith@example.com", UserName = "jane.smith@example.com", PositionId = 2, Status = EmployeeStatus.Active, OutOfOfficeBalance = 12 },
-                    new Employee { FullName = "Mike Johnson", Email = "mike.johnson@example.com", UserName = "mike.johnson@example.com", PositionId = 3, Status = EmployeeStatus.Active, OutOfOfficeBalance = 8 },
-                    new Employee { FullName = "Emily Davis", Email = "emily.davis@example.com", UserName = "emily.davis@example.com", PositionId = 4, Status = EmployeeStatus.Active, OutOfOfficeBalance = 20 },
-                    new Employee { FullName = "Daniel Brown", Email = "daniel.brown@example.com", UserName = "daniel.brown@example.com", PositionId = 6, Status = EmployeeStatus.Active, OutOfOfficeBalance = 25 },
-                    new Employee { FullName = "Sophia Wilson", Email = "sophia.wilson@example.com", UserName = "sophia.wilson@example.com", PositionId = 7, Status = EmployeeStatus.Active, OutOfOfficeBalance = 18 },
-                    new Employee { FullName = "Chris Martin", Email = "chris.martin@example.com", UserName = "chris.martin@example.com", PositionId = 8, Status = EmployeeStatus.Active, OutOfOfficeBalance = 30 },
-                    new Employee { FullName = "Anna Taylor", Email = "anna.taylor@example.com", UserName = "anna.taylor@example.com", PositionId = 9, Status = EmployeeStatus.Active, OutOfOfficeBalance = 22 },
-                    new Employee { FullName = "David Anderson", Email = "david.anderson@example.com", UserName = "david.anderson@example.com", PositionId = 10, Status = EmployeeStatus.Active, OutOfOfficeBalance = 28 }
+                    new Employee { FullName = "Admin", Email = "admin@admin.com", UserName = "admin@admin.com", SubdivisionId = 2, PositionId = 6, Status = EmployeeStatus.Active, OutOfOfficeBalance = 10 },
+                    new Employee { FullName = "John Doe", Email = "john.doe@example.com", UserName = "john.doe@example.com", SubdivisionId = 2, PositionId = 1, Status = EmployeeStatus.Active, OutOfOfficeBalance = 15 },
+                    new Employee { FullName = "Jane Smith", Email = "jane.smith@example.com", UserName = "jane.smith@example.com", SubdivisionId = 1, PositionId = 4, Status = EmployeeStatus.Active, OutOfOfficeBalance = 12 },
+                    new Employee { FullName = "Mike Johnson", Email = "mike.johnson@example.com", UserName = "mike.johnson@example.com", SubdivisionId = 3, PositionId = 5, Status = EmployeeStatus.Active, OutOfOfficeBalance = 8 },
+                    new Employee { FullName = "Emily Davis", Email = "emily.davis@example.com", UserName = "emily.davis@example.com", SubdivisionId = 2, PositionId = 5, Status = EmployeeStatus.Active, OutOfOfficeBalance = 20 },
+                    new Employee { FullName = "Daniel Brown", Email = "daniel.brown@example.com", UserName = "daniel.brown@example.com", SubdivisionId = 1, PositionId = 6, Status = EmployeeStatus.Active, OutOfOfficeBalance = 25 },
+                    new Employee { FullName = "Sophia Wilson", Email = "sophia.wilson@example.com", UserName = "sophia.wilson@example.com", SubdivisionId = 4, PositionId = 7, Status = EmployeeStatus.Active, OutOfOfficeBalance = 18 },
+                    new Employee { FullName = "Chris Martin", Email = "chris.martin@example.com", UserName = "chris.martin@example.com", SubdivisionId = 2, PositionId = 8, Status = EmployeeStatus.Active, OutOfOfficeBalance = 30 },
+                    new Employee { FullName = "Anna Taylor", Email = "anna.taylor@example.com", UserName = "anna.taylor@example.com", SubdivisionId = 1, PositionId = 9, Status = EmployeeStatus.Active, OutOfOfficeBalance = 22 },
+                    new Employee { FullName = "David Anderson", Email = "david.anderson@example.com", UserName = "david.anderson@example.com", SubdivisionId = 3, PositionId = 10, Status = EmployeeStatus.Active, OutOfOfficeBalance = 28 }
                 };
 
                 for (int i = 5, j = 0; i < employees.Length && j < imageFilePaths.Length; i++, j++)
@@ -97,21 +102,57 @@ namespace OutOfOffice.DAL.Seed
             }
         }
 
+        private static async Task SeedSubdivisionsAsync(OutOfOfficeDbContext context)
+        {
+            if (!await context.Subdivisions.AnyAsync())
+            {
+                var subdivisions = new[]
+                {
+                    new Subdivision { Name = "HR Department" },
+                    new Subdivision { Name = "IT Department" },
+                    new Subdivision { Name = "Marketing Department" },
+                    new Subdivision { Name = "Sales Department" }
+                };
+
+                await context.Subdivisions.AddRangeAsync(subdivisions);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        private static async Task SeedAbsenceReasonsAsync(OutOfOfficeDbContext context)
+        {
+            if (!await context.AbsenceReasons.AnyAsync())
+            {
+                var absenceReasons = new[]
+                {
+                    new AbsenceReason { ReasonTitle = "Sick Leave" },
+                    new AbsenceReason { ReasonTitle = "Vacation" },
+                    new AbsenceReason { ReasonTitle = "Personal Leave" },
+                    new AbsenceReason { ReasonTitle = "Emergency" },
+                    new AbsenceReason { ReasonTitle = "Training" },
+                    new AbsenceReason { ReasonTitle = "Conference" }
+                };
+
+                await context.AbsenceReasons.AddRangeAsync(absenceReasons);
+                await context.SaveChangesAsync();
+            }
+        }
+
         private static async Task SeedLeaveRequestsAsync(OutOfOfficeDbContext context)
         {
 
             var leaveRequests = new List<LeaveRequest>
             {
-                new LeaveRequest { EmployeeId = 2, StartDate = new DateTime(2024, 8, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 8, 5, 0, 0, 0, DateTimeKind.Local), Comment = "Vacation", Status = RequestStatus.New, AbsenceReason = "Vacation" },
-                new LeaveRequest { EmployeeId = 2, StartDate = new DateTime(2024, 9, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 9, 5, 0, 0, 0, DateTimeKind.Local), Comment = "Medical", Status = RequestStatus.New, AbsenceReason = "Medical" },
-                new LeaveRequest { EmployeeId = 3, StartDate = new DateTime(2024, 7, 15, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 7, 20, 0, 0, 0, DateTimeKind.Local), Comment = "Sick leave", Status = RequestStatus.Approved, AbsenceReason = "Sick leave" },
-                new LeaveRequest { EmployeeId = 4, StartDate = new DateTime(2024, 9, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 9, 10, 0, 0, 0, DateTimeKind.Local), Comment = "Family emergency", Status = RequestStatus.Pending, AbsenceReason = "Family emergency" },
-                new LeaveRequest { EmployeeId = 5, StartDate = new DateTime(2024, 10, 5, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 10, 15, 0, 0, 0, DateTimeKind.Local), Comment = "Holiday", Status = RequestStatus.New, AbsenceReason = "Holiday" },
-                new LeaveRequest { EmployeeId = 6, StartDate = new DateTime(2024, 11, 5, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 11, 12, 0, 0, 0, DateTimeKind.Local), Comment = "Personal reasons", Status = RequestStatus.Rejected, AbsenceReason = "Personal reasons" },
-                new LeaveRequest { EmployeeId = 7, StartDate = new DateTime(2024, 12, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 7, 0, 0, 0, DateTimeKind.Local), Comment = "Training", Status = RequestStatus.New, AbsenceReason = "Training" },
-                new LeaveRequest { EmployeeId = 8, StartDate = new DateTime(2024, 12, 15, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 20, 0, 0, 0, DateTimeKind.Local), Comment = "Conference", Status = RequestStatus.Approved, AbsenceReason = "Conference" },
-                new LeaveRequest { EmployeeId = 9, StartDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2025, 1, 5, 0, 0, 0, DateTimeKind.Local), Comment = "Medical", Status = RequestStatus.New, AbsenceReason = "Medical" },
-                new LeaveRequest { EmployeeId = 10, StartDate = new DateTime(2025, 2, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2025, 2, 5, 0, 0, 0, DateTimeKind.Local), Comment = "Workshop", Status = RequestStatus.Pending, AbsenceReason = "Workshop" }
+                new LeaveRequest { EmployeeId = 2, StartDate = new DateTime(2024, 8, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 8, 5, 0, 0, 0, DateTimeKind.Local), Comment = "Vacation", Status = RequestStatus.New, AbsenceReasonId = 2 },
+                new LeaveRequest { EmployeeId = 2, StartDate = new DateTime(2024, 9, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 9, 5, 0, 0, 0, DateTimeKind.Local), Comment = "Medical", Status = RequestStatus.New, AbsenceReasonId = 1 },
+                new LeaveRequest { EmployeeId = 3, StartDate = new DateTime(2024, 7, 15, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 7, 20, 0, 0, 0, DateTimeKind.Local), Comment = "Sick leave", Status = RequestStatus.Approved, AbsenceReasonId = 1 },
+                new LeaveRequest { EmployeeId = 4, StartDate = new DateTime(2024, 9, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 9, 10, 0, 0, 0, DateTimeKind.Local), Comment = "Family emergency", Status = RequestStatus.Pending, AbsenceReasonId = 3 },
+                new LeaveRequest { EmployeeId = 5, StartDate = new DateTime(2024, 10, 5, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 10, 15, 0, 0, 0, DateTimeKind.Local), Comment = "Holiday", Status = RequestStatus.New, AbsenceReasonId = 2 },
+                new LeaveRequest { EmployeeId = 6, StartDate = new DateTime(2024, 11, 5, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 11, 12, 0, 0, 0, DateTimeKind.Local), Comment = "Personal reasons", Status = RequestStatus.Rejected, AbsenceReasonId = 3 },
+                new LeaveRequest { EmployeeId = 7, StartDate = new DateTime(2024, 12, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 7, 0, 0, 0, DateTimeKind.Local), Comment = "Training", Status = RequestStatus.New, AbsenceReasonId = 5 },
+                new LeaveRequest { EmployeeId = 8, StartDate = new DateTime(2024, 12, 15, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 20, 0, 0, 0, DateTimeKind.Local), Comment = "Conference", Status = RequestStatus.Approved, AbsenceReasonId = 6 },
+                new LeaveRequest { EmployeeId = 9, StartDate = new DateTime(2025, 1, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2025, 1, 5, 0, 0, 0, DateTimeKind.Local), Comment = "Medical", Status = RequestStatus.New, AbsenceReasonId = 1 },
+                new LeaveRequest { EmployeeId = 10, StartDate = new DateTime(2025, 2, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2025, 2, 5, 0, 0, 0, DateTimeKind.Local), Comment = "Workshop", Status = RequestStatus.Pending, AbsenceReasonId = 5 }
             };
 
             await context.LeaveRequests.AddRangeAsync(leaveRequests);

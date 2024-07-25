@@ -14,7 +14,8 @@ namespace OutOfOffice.DAL.Models
         public string FullName { get; set; } = string.Empty;
 
         [Required]
-        public string Subdivision { get; set; } = string.Empty;
+        [ForeignKey(nameof(Subdivision))]
+        public int SubdivisionId { get; set; }
 
         [Required]
         [ForeignKey(nameof(Position))]
@@ -37,6 +38,8 @@ namespace OutOfOffice.DAL.Models
         public Employee? EmployeePartner { get; set; }
 
         public Position? Position { get; set; } = null!;
+
+        public Subdivision Subdivision { get; set; } = null!;
 
         public ICollection<LeaveRequest> LeaveRequests { get; set; } = new List<LeaveRequest>();
 

@@ -23,6 +23,7 @@ public class LeaveRequestService : IRequestService
     {
         var leaveRequest = await _context.LeaveRequests
         .Include(lr => lr.Employee)
+        .Include(lr => lr.AbsenceReason)
         .Include(lr => lr.ApprovalRequest)
             .ThenInclude(ar => ar.Approver)
         .FirstOrDefaultAsync(lr => lr.Id == id);
@@ -39,7 +40,7 @@ public class LeaveRequestService : IRequestService
             EndDate = leaveRequest.EndDate,
             Comment = leaveRequest.Comment,
             Status = leaveRequest.Status.ToString(),
-            AbsenceReason = leaveRequest.AbsenceReason.ToString(),
+            AbsenceReason = leaveRequest.AbsenceReason.ReasonTitle,
             Employee = new BriefEmployeeViewModel
             {
                 Id = leaveRequest.Employee.Id,
@@ -84,7 +85,7 @@ public class LeaveRequestService : IRequestService
             EndDate = leaveRequest.EndDate,
             Comment = leaveRequest.Comment,
             Status = leaveRequest.Status.ToString(),
-            AbsenceReason = leaveRequest.AbsenceReason.ToString(),
+            AbsenceReason = leaveRequest.AbsenceReason.ReasonTitle,
             ApproveStatus = leaveRequest.ApprovalRequest != null ? leaveRequest.ApprovalRequest.Status.ToString() : RequestStatus.Pending.ToString(),
         }).ToList();
 
@@ -115,7 +116,7 @@ public class LeaveRequestService : IRequestService
             EndDate = leaveRequest.EndDate,
             Comment = leaveRequest.Comment,
             Status = leaveRequest.Status.ToString(),
-            AbsenceReason = leaveRequest.AbsenceReason.ToString(),
+            AbsenceReason = leaveRequest.AbsenceReason.ReasonTitle,
             ApprovalRequestId = leaveRequest.ApprovalRequest?.Id ?? 0,
         }).ToList();
 
@@ -131,7 +132,7 @@ public class LeaveRequestService : IRequestService
             EndDate = requestDto.EndDate,
             Comment = requestDto.Comment,
             Status = requestDto.Status,
-            AbsenceReason = requestDto.AbsenceReason,
+            AbsenceReasonId = requestDto.AbsenceReasonId,
         };
 
         await _context.LeaveRequests.AddAsync(leaveRequest);
@@ -153,7 +154,7 @@ public class LeaveRequestService : IRequestService
         leaveRequest.EndDate = expectedValues.EndDate;
         leaveRequest.Comment = expectedValues.Comment;
         leaveRequest.Status = expectedValues.Status;
-        leaveRequest.AbsenceReason = expectedValues.AbsenceReason;
+        leaveRequest.AbsenceReasonId = expectedValues.AbsenceReasonId;
 
         await _context.SaveChangesAsync();
 

@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutOfOffice.BLL", "OutOfOff
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutOfOffice.Common", "OutOfOffice.Common\OutOfOffice.Common.csproj", "{CE6F4BBC-17D9-44CB-8ACA-5AF54D50ECD1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OutOfOffice.BlazorUI", "OutOfOffice.BlazorUI\OutOfOffice.BlazorUI.csproj", "{0EEC3EBC-7FED-423A-901B-3CB8491DFD7E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OutOfOffice.BlazorUI", "OutOfOffice.BlazorUI\OutOfOffice.BlazorUI.csproj", "{0EEC3EBC-7FED-423A-901B-3CB8491DFD7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

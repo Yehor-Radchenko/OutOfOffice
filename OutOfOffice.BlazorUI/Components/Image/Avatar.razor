@@ -1,0 +1,9 @@
+﻿@* Avatar.razor *@
+<img src="@ImageSrc" alt="Profile Photo" class="avatar-image-profile" />
+
+@code {
+    [Parameter]
+    public byte[] Photo { get; set; }
+
+    public string ImageSrc => $"data:image/jpeg;base64,{Convert.ToBase64String(Photo)}";
+}

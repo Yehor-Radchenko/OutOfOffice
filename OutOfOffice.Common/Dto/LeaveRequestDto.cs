@@ -1,5 +1,4 @@
-﻿using OutOfOffice.Common.ValidationAttributes;
-using OutOfOffice.Common.Enums;
+﻿using OutOfOffice.Common.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace OutOfOffice.Common.Dto
@@ -18,7 +17,6 @@ namespace OutOfOffice.Common.Dto
         public RequestStatus Status { get; set; }
 
         [Required(ErrorMessage = "AbsenceReason is required.")]
-        [ValidAbsenceReason(ErrorMessage = "The provided Absence reason is not valid.")]
-        public string AbsenceReason { get; set; }
+        public int AbsenceReasonId { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿@inherits LayoutComponentBase
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
-
 @using OutOfOffice.BlazorUI.Services.Contracts
 
 <div class="page">
@@ -29,5 +28,9 @@
 </div>
 
 @code {
-    private void Logout() => NavigationManager.NavigateTo("/logout", true);
+    private async Task Logout()
+    {
+        await AuthenticationService.LogoutAsync();
+        NavigationManager.NavigateTo("/", true);
+    }
 }

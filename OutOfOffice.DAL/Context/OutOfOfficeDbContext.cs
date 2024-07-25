@@ -18,6 +18,8 @@ namespace OutOfOffice.DAL.Context
         public DbSet<Photo> Photos { get; set; }
         public DbSet<Position> Positions { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<Subdivision> Subdivisions { get; set; }
+        public DbSet<AbsenceReason> AbsenceReasons { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -67,6 +69,14 @@ namespace OutOfOffice.DAL.Context
                 .HasMany(p => p.Employees)
                 .WithMany(e => e.Projects)
                 .UsingEntity(j => j.ToTable("ProjectEmployees"));
+
+            modelBuilder.Entity<Subdivision>()
+                .HasIndex(e => e.Name)
+                .IsUnique();
+
+            modelBuilder.Entity<AbsenceReason>()
+                .HasIndex(e => e.ReasonTitle)
+                .IsUnique();
         }
     }
 }

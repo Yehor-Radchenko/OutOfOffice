@@ -3,6 +3,7 @@
 @inject ILocalStorageService LocalStorageService
 
 @using Blazored.LocalStorage
+@using OutOfOffice.BlazorUI.Components.Image
 @using OutOfOffice.BlazorUI.Services
 @using OutOfOffice.BlazorUI.Services.Contracts
 @using OutOfOffice.Common.ViewModels.Employee
@@ -12,17 +13,20 @@
     <div class="profile-photo">
         @if (ViewModel?.Photo != null && ViewModel.Photo.Length > 0)
         {
-            <img src="@($"data:image/jpeg;base64,{Convert.ToBase64String(ViewModel.Photo)}")" alt="Profile Photo" class="rounded-circle img-fluid" style="width: 150px;"/>
+            <Avatar Photo="ViewModel.Photo" />
         }
         else
         {
-            <img src="images/default_profile_image.jpg" alt="Default Profile Photo" class="rounded-circle img-fluid" style="width: 150px;" />
+            <img src="images/default_profile_image.jpg" alt="Default Profile Photo" class="avatar-image-profile" />
         }
     </div>
     <div class="profile-details">
         <br/>
         <p><strong>Position:</strong> @ViewModel?.Position</p>
-        <p><strong>Subdivision:</strong> @ViewModel?.Subdivision</p>
+        @if (!string.IsNullOrEmpty(ViewModel?.Subdivision))
+        {
+            <p><strong>Subdivision:</strong> @ViewModel?.Subdivision</p>
+        }
         <p><strong>Status:</strong> @ViewModel?.Status</p>
         <p><strong>Out of Office Balance:</strong> @ViewModel?.OutOfOfficeBalance</p>
 

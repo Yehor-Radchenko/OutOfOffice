@@ -24,6 +24,11 @@ builder.Services.AddHttpClient("API", client =>
 })
 .AddHttpMessageHandler<AuthHeaderHandler>();
 
+builder.Services.AddHttpClient("UnauthenticatedClient", client =>
+{
+    client.BaseAddress = new Uri("https://localhost:44371/");
+});
+
 builder.Services.AddAuthorizationCore();
 
 await builder.Build().RunAsync();

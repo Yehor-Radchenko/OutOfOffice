@@ -29,7 +29,7 @@ namespace OutOfOffice.BlazorUI.Services
 
         public async Task<AuthResponse?> LoginAsync(LoginDto model)
         {
-            var response = await _factory.CreateClient("API").PostAsJsonAsync("api/account/login", model);
+            var response = await _factory.CreateClient("UnauthenticatedClient").PostAsJsonAsync("api/account/login", model);
 
             if (response.IsSuccessStatusCode)
             {
