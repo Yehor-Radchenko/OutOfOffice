@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using OutOfOffice.BLL.Services.Jwt;
 using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.ResponseModels;
-using OutOfOffice.Common.Services.Jwt;
 using OutOfOffice.DAL.Models;
 
 namespace OutOfOffice.Controllers;

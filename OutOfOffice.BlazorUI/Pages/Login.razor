@@ -68,7 +68,6 @@
 @code {
     [SupplyParameterFromForm]
     private LoginDto Model { get; set; } = new();
-    private bool success;
     private string? errorMessage;
     private bool loginSucceeded;
     private string? token;
@@ -80,7 +79,6 @@
             var authResponse = await AuthenticationService.LoginAsync(Model);
             if (authResponse != null)
             {
-                success = true;
                 token = authResponse.Token;
                 loginSucceeded = true;
                 errorMessage = null;
@@ -92,7 +90,6 @@
         }
         catch (HttpRequestException)
         {
-            success = false;
             errorMessage = "Login failed. Please check your email and password.";
         }
     }

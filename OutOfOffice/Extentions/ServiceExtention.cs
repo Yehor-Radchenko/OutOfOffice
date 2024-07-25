@@ -6,13 +6,12 @@ using Microsoft.AspNetCore.Identity;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 using Microsoft.EntityFrameworkCore;
-using OutOfOffice.Common.Services;
-using OutOfOffice.Common.Services.Jwt;
-using Microsoft.Extensions.Options;
 using OutOfOffice.Extentions;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using System.Net;
 using Microsoft.OpenApi.Models;
+using OutOfOffice.BLL.Services.Jwt;
+using OutOfOffice.BLL.Services;
 
 public static class ServiceExtensions
 {
@@ -97,6 +96,8 @@ public static class ServiceExtensions
         services.AddScoped<LeaveRequestService>();
         services.AddScoped<ApprovalRequestService>();
         services.AddScoped<ProjectService>();
+        services.AddScoped<AbsenceReasonService>();
+        services.AddScoped<SubdivisionService>();
     }
 
     public static void ConfigureMiddleware(this WebApplication app)

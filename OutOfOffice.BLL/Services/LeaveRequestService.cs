@@ -1,14 +1,14 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using OutOfOffice.Common.Dto;
-using OutOfOffice.Common.Services.IService;
 using OutOfOffice.Common.ViewModels.ApprovalRequest;
 using OutOfOffice.Common.ViewModels.Employee;
 using OutOfOffice.Common.ViewModels.LeaveRequest;
 using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
+using OutOfOffice.BLL.Services.IService;
 
-namespace OutOfOffice.Common.Services;
+namespace OutOfOffice.BLL.Services;
 
 public class LeaveRequestService : IRequestService
 {

@@ -2,8 +2,8 @@ using Serilog;
 using OutOfOffice.API.Extentions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using OutOfOffice.Common.Services.Jwt;
 using System.Text;
+using OutOfOffice.BLL.Services.Jwt;
 
 var builder = WebApplication.CreateBuilder(args);
 

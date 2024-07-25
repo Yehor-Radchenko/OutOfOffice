@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OutOfOffice.BLL.Services;
 using OutOfOffice.Common.Dto.ApprovalRequestDto;
-using OutOfOffice.Common.Services;
 using System.IdentityModel.Tokens.Jwt;
 
 namespace OutOfOffice.Controllers;

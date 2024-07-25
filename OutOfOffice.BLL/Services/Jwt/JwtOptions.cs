@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace OutOfOffice.Common.Services.Jwt
+namespace OutOfOffice.BLL.Services.Jwt
 {
     public class JwtOptions
     {

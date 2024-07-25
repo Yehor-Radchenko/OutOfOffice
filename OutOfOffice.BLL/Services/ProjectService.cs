@@ -6,7 +6,7 @@ using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 
-namespace OutOfOffice.Common.Services;
+namespace OutOfOffice.BLL.Services;
 
 public class ProjectService
 {

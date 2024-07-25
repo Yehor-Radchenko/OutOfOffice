@@ -1,4 +1,4 @@
-﻿namespace OutOfOffice.Common.Services.IService
+﻿namespace OutOfOffice.BLL.Services.IService
 {
     public interface IService<TDto, TFullViewMode, TBriefViewModel, TTableViewModel>
     {

@@ -2,7 +2,7 @@
 using OutOfOffice.Common.ViewModels.Employee;
 using OutOfOffice.Common.Enums;
 
-namespace OutOfOffice.Common.Services.IService
+namespace OutOfOffice.BLL.Services.IService
 {
     internal interface IEmployeeService 
         : IService<EmployeeDto, FullEmployeeViewModel, BriefEmployeeViewModel, TableEmployeeViewModel>

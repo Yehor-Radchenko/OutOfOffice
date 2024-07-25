@@ -7,7 +7,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 
-namespace OutOfOffice.Common.Services.Jwt
+namespace OutOfOffice.BLL.Services.Jwt
 {
     public class JwtService
     {
