@@ -9,6 +9,7 @@ using Microsoft.IdentityModel.Tokens;
 using OutOfOffice.Common.Services.Jwt;
 using System.Text;
 using Microsoft.Extensions.Configuration;
+using OutOfOffice.API.DataSeed;
 
 var builder = WebApplication.CreateBuilder(args);
 
