@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
+using System.Linq.Expressions;
 
 namespace OutOfOffice.API.DataSeed
 {
@@ -59,7 +60,9 @@ namespace OutOfOffice.API.DataSeed
         {
             if (!await context.Employees.AnyAsync())
             {
-                var employees = new List<Employee>
+                string[] imageFilePaths = Directory.GetFiles("DataSeed/Images");
+
+                var employees = new Employee[]
                 {
                     new Employee { FullName = "Admin", Email = "admin@admin.com", UserName = "admin@admin.com", PositionId = 5, Status = EmployeeStatus.Active, OutOfOfficeBalance = 10 },
                     new Employee { FullName = "John Doe", Email = "john.doe@example.com", UserName = "john.doe@example.com", PositionId = 1, Status = EmployeeStatus.Active, OutOfOfficeBalance = 15 },
@@ -73,6 +76,12 @@ namespace OutOfOffice.API.DataSeed
                     new Employee { FullName = "David Anderson", Email = "david.anderson@example.com", UserName = "david.anderson@example.com", PositionId = 10, Status = EmployeeStatus.Active, OutOfOfficeBalance = 28 }
                 };
 
+                for (int i = 5, j = 0; i < employees.Length && j < imageFilePaths.Length; i++, j++)
+                {
+                    byte[] imageBytes = await File.ReadAllBytesAsync(imageFilePaths[j]);
+                    employees[i].Photo = new Photo { Base64Data = imageBytes };
+                }
+
                 foreach (var employee in employees)
                 {
                     await userManager.CreateAsync(employee, "1234qwer");
@@ -83,14 +92,24 @@ namespace OutOfOffice.API.DataSeed
                 await userManager.AddToRoleAsync(adminEmployee, "Admin");
 
                 var hrManagerEmployee = employees[2];
+                hrManagerEmployee.EmployeePartner = adminEmployee;
                 await userManager.AddToRoleAsync(hrManagerEmployee, "HRManager");
 
-                var projectManagerEmployee = employees[4];
-                await userManager.AddToRoleAsync(projectManagerEmployee, "ProjectManager");
+                for (int i = 3; i < employees.Length; i++)
+                {
+                    employees[i].EmployeePartner = hrManagerEmployee;
+                }
+
+                var projectManager1 = employees[4];
+                await userManager.AddToRoleAsync(projectManager1, "ProjectManager");
+                var projectManager2 = employees[3];
+                await userManager.AddToRoleAsync(projectManager2, "ProjectManager");
 
                 await SeedLeaveRequestsAsync(context);
                 await SeedApprovalRequestsAsync(context);
                 await SeedProjectsAsync(context);
+
+                await context.SaveChangesAsync();
             }
         }
 
@@ -139,29 +158,36 @@ namespace OutOfOffice.API.DataSeed
 
         private static async Task SeedProjectsAsync(OutOfOfficeDbContext context)
         {
-            var projectManager = await context.Employees.FirstOrDefaultAsync(e => e.UserName == "emily.davis@example.com");
+            var projectManager1 = await context.Employees.FirstOrDefaultAsync(e => e.UserName == "emily.davis@example.com");
+            var projectManager2 = await context.Employees.FirstOrDefaultAsync(e => e.UserName == "mike.johnson@example.com");
 
-            if (projectManager == null)
+            if (projectManager1 == null)
             {
                 throw new KeyNotFoundException("Project manager not found.");
             }
 
             var projects = new List<Project>
             {
-                new Project { ProjectType = ProjectType.Development, StartDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 6, 30, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "New software development", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.MarketingCampaign, StartDate = new DateTime(2024, 2, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 8, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "Marketing campaign for Q2", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.Research, StartDate = new DateTime(2024, 3, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "Research for new product", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.ProductLaunch, StartDate = new DateTime(2024, 4, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 11, 30, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "Launch of new product line", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.Development, StartDate = new DateTime(2024, 5, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "Backend development for new app", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.MarketingCampaign, StartDate = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 10, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "Summer marketing campaign", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.Research, StartDate = new DateTime(2024, 7, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "User experience research", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.ProductLaunch, StartDate = new DateTime(2024, 8, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "Product launch preparation", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.Development, StartDate = new DateTime(2024, 9, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "Front-end development for new website", Status = ProjectStatus.Ongoing },
-                new Project { ProjectType = ProjectType.MarketingCampaign, StartDate = new DateTime(2024, 10, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager.Id, Comment = "Holiday marketing campaign", Status = ProjectStatus.Ongoing }
+                new Project { ProjectType = ProjectType.Development, StartDate = new DateTime(2024, 1, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 6, 30, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager1.Id, Comment = "New software development", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.MarketingCampaign, StartDate = new DateTime(2024, 2, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 8, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager2.Id, Comment = "Marketing campaign for Q2", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.Research, StartDate = new DateTime(2024, 3, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager1.Id, Comment = "Research for new product", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.ProductLaunch, StartDate = new DateTime(2024, 4, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 11, 30, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager2.Id, Comment = "Launch of new product line", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.Development, StartDate = new DateTime(2024, 5, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager1.Id, Comment = "Backend development for new app", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.MarketingCampaign, StartDate = new DateTime(2024, 6, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 10, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager2.Id, Comment = "Summer marketing campaign", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.Research, StartDate = new DateTime(2024, 7, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager1.Id, Comment = "User experience research", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.ProductLaunch, StartDate = new DateTime(2024, 8, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager2.Id, Comment = "Product launch preparation", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.Development, StartDate = new DateTime(2024, 9, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager1.Id, Comment = "Front-end development for new website", Status = ProjectStatus.Ongoing },
+                new Project { ProjectType = ProjectType.MarketingCampaign, StartDate = new DateTime(2024, 10, 1, 0, 0, 0, DateTimeKind.Local), EndDate = new DateTime(2024, 12, 31, 0, 0, 0, DateTimeKind.Local), ProjectManagerId = projectManager2.Id, Comment = "Holiday marketing campaign", Status = ProjectStatus.Ongoing }
             };
 
             await context.Projects.AddRangeAsync(projects);
             await context.SaveChangesAsync();
+        }
+
+        private static string ConvertImageToBase64(string imagePath)
+        {
+            byte[] imageBytes = File.ReadAllBytes(imagePath);
+            return Convert.ToBase64String(imageBytes);
         }
     }
 }
