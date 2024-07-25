@@ -1,15 +1,9 @@
 using Serilog;
 using OutOfOffice.API.Extentions;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Net;
-using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
-using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.Tokens;
 using OutOfOffice.Common.Services.Jwt;
 using System.Text;
-using Microsoft.Extensions.Configuration;
-using OutOfOffice.API.DataSeed;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -66,27 +60,8 @@ builder.Services.ConfigureServices(builder.Configuration);
 
 var app = builder.Build();
 
-await DataSeeder.SeedDataAsync(app);
+await DataSeedExtention.SeedDataAsync(app);
 
 app.ConfigureMiddleware();
-
-//app.UseStatusCodePages(async context =>
-//{
-//    var response = context.HttpContext.Response;
-//    if (response.StatusCode == (int)HttpStatusCode.Unauthorized ||
-//        response.StatusCode == (int)HttpStatusCode.Forbidden)
-//    {
-//        response.ContentType = "application/json";
-//        var problem = new ProblemDetails
-//        {
-//            Status = response.StatusCode,
-//            Instance = context.HttpContext.Request.Path,
-//            Detail = response.StatusCode == (int)HttpStatusCode.Unauthorized
-//                ? "Unauthorized access"
-//                : "Forbidden access"
-//        };
-//        await response.WriteAsync(JsonConvert.SerializeObject(problem));
-//    }
-//});
 
 app.Run();

@@ -3,27 +3,12 @@ using Microsoft.EntityFrameworkCore;
 using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
-using System.Linq.Expressions;
 
-namespace OutOfOffice.API.DataSeed
+namespace OutOfOffice.DAL.Seed
 {
     public static class DataSeeder
     {
-        public static async Task SeedDataAsync(WebApplication app)
-        {
-            using var scope = app.Services.CreateScope();
-            var serviceProvider = scope.ServiceProvider;
-
-            var dbContext = serviceProvider.GetRequiredService<OutOfOfficeDbContext>();
-            var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole<int>>>();
-            var userManager = serviceProvider.GetRequiredService<UserManager<Employee>>();
-
-            await SeedRolesAsync(roleManager);
-            await SeedPositionsAsync(dbContext);
-            await SeedEmployeesAsync(dbContext, userManager);
-        }
-
-        private static async Task SeedRolesAsync(RoleManager<IdentityRole<int>> roleManager)
+        public static async Task SeedRolesAsync(RoleManager<IdentityRole<int>> roleManager)
         {
             string[] roleNames = { "Admin", "Employee", "HRManager", "ProjectManager" };
 
@@ -36,7 +21,7 @@ namespace OutOfOffice.API.DataSeed
             }
         }
 
-        private static async Task SeedPositionsAsync(OutOfOfficeDbContext context)
+        public static async Task SeedPositionsAsync(OutOfOfficeDbContext context)
         {
             if (!await context.Positions.AnyAsync())
             {
@@ -55,12 +40,11 @@ namespace OutOfOffice.API.DataSeed
             }
         }
 
-
-        private static async Task SeedEmployeesAsync(OutOfOfficeDbContext context, UserManager<Employee> userManager)
+        public static async Task SeedEmployeesAsync(OutOfOfficeDbContext context, UserManager<Employee> userManager)
         {
             if (!await context.Employees.AnyAsync())
             {
-                string[] imageFilePaths = Directory.GetFiles("DataSeed/Images");
+                string[] imageFilePaths = Directory.GetFiles("../OutOfOffice.DAL/Seed/Images");
 
                 var employees = new Employee[]
                 {
