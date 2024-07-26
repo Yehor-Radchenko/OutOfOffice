@@ -86,7 +86,7 @@ public class ApprovalRequestController : ControllerBase
     {
         var getToken = HttpContext.Request.Cookies["jwt-token"];
         var convertToken = JwtSecurityTokenConverter.Convert(new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(getToken));
-        var approverId = Convert.ToInt32(convertToken.Claims.FirstOrDefault().Value);
+        var approverId = Convert.ToInt32(convertToken.Claims.First().Value);
         return approverId;
     }
 }

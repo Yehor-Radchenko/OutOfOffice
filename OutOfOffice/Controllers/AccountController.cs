@@ -14,13 +14,11 @@ public class AccountController : ControllerBase
 {
     private readonly SignInManager<Employee> _signInManager;
     private readonly JwtService _jwtService;
-    private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public AccountController(SignInManager<Employee> signInManager, JwtService jwtService, IHttpContextAccessor httpContextAccessor)
+    public AccountController(SignInManager<Employee> signInManager, JwtService jwtService)
     {
         _signInManager = signInManager;
         _jwtService = jwtService;
-        _httpContextAccessor = httpContextAccessor;
     }
 
     [HttpPost("login")]
@@ -41,7 +39,6 @@ public class AccountController : ControllerBase
                 return Unauthorized(new { Message = "Invalid login attempt." });
             }
             var token = await _jwtService.GenerateToken(user);
-            var roles = await _signInManager.UserManager.GetRolesAsync(user);
 
             AuthResponse authResponse = new AuthResponse()
             {
@@ -62,15 +59,5 @@ public class AccountController : ControllerBase
         {
             return Unauthorized(new { Message = "Invalid login attempt." });
         }
-    }
-
-    [Authorize]
-    [HttpPost("logout")]
-    public async Task<IActionResult> Logout()
-    {
-        await _signInManager.SignOutAsync();
-        _httpContextAccessor.HttpContext.Response.Cookies.Delete("jwt-token");
-        _httpContextAccessor.HttpContext.Response.Cookies.Delete(".AspNetCore.Identity.Application");
-        return Ok("Logged out successfully.");
     }
 }

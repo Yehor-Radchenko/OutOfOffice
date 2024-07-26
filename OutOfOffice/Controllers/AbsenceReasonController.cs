@@ -2,11 +2,13 @@
 using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.ViewModels.AbsenceReason;
 using OutOfOffice.BLL.Services.IService;
+using Microsoft.AspNetCore.Authorization;
 
 namespace OutOfOffice.API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = "Bearer")]
     public class AbsenceReasonController : ControllerBase
     {
         private readonly IAbsenceReasonService<AbsenceReasonDto, AbsenceReasonViewModel> _absenceReasonService;
@@ -17,6 +19,7 @@ namespace OutOfOffice.API.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> AddAbsenceReason([FromBody] AbsenceReasonDto absenceReasonDto)
         {
             if (!ModelState.IsValid)
@@ -29,6 +32,7 @@ namespace OutOfOffice.API.Controllers
         }
 
         [HttpGet]
+        [Authorize]
         public async Task<IActionResult> GetAllAbsenceReasons()
         {
             var absenceReasons = await _absenceReasonService.GetAllAsync();
@@ -36,6 +40,7 @@ namespace OutOfOffice.API.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize]
         public async Task<IActionResult> GetAbsenceReasonById(int id)
         {
             var absenceReasons = await _absenceReasonService.GetAllAsync();
@@ -49,6 +54,7 @@ namespace OutOfOffice.API.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> UpdateAbsenceReason(int id, [FromBody] AbsenceReasonDto absenceReasonDto)
         {
             if (!ModelState.IsValid)
