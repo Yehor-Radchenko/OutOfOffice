@@ -14,6 +14,6 @@
 
         public string AbsenceReason { get; set; } = null!;
 
-        public string? ApproveStatus { get; set; } = null;
+        public string ApproveStatus { get; set; } = null!;
     }
 }

@@ -65,6 +65,7 @@ public class LeaveRequestService : IRequestService
     {
         var query = _context.LeaveRequests
             .Include(lr => lr.ApprovalRequest)
+            .Include(lr => lr.AbsenceReason)
             .Where(lr => lr.EmployeeId == userId)
             .AsQueryable();
 

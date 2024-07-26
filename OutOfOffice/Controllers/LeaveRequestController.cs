@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using OutOfOffice.BLL.Services;
 using OutOfOffice.Common.Dto;
-using OutOfOffice.Common.Services;
 using OutOfOffice.Common.ViewModels.LeaveRequest;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -11,11 +11,11 @@ namespace OutOfOffice.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize(AuthenticationSchemes = "Bearer")]
-public class LeaveRequestsController : ControllerBase
+public class LeaveRequestController : ControllerBase
 {
     private readonly LeaveRequestService _leaveRequestService;
 
-    public LeaveRequestsController(LeaveRequestService leaveRequestService)
+    public LeaveRequestController(LeaveRequestService leaveRequestService)
     {
         _leaveRequestService = leaveRequestService;
     }
@@ -36,7 +36,7 @@ public class LeaveRequestsController : ControllerBase
     }
 
     [Authorize(Roles = "Employee")]
-    [HttpGet("employee/leave-requests")]
+    [HttpGet("employee")]
     public async Task<ActionResult<List<EmployeeLeaveRequestViewModel>>> GetEmployeeLeaveRequests(string? searchValue)
     {
         var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
@@ -51,7 +51,7 @@ public class LeaveRequestsController : ControllerBase
     }
 
     [Authorize(Roles = "HRManager,ProjectManager,Admin")]
-    [HttpGet("manager/leave-requests")]
+    [HttpGet("manager")]
     public async Task<ActionResult<List<TableLeaveRequestViewModel>>> GetManagerLeaveRequests(string? searchValue)
     {
         var leaveRequests = await _leaveRequestService.GetAllLeaveRequestsAsync(searchValue);

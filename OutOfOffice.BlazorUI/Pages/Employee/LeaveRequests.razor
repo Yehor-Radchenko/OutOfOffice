@@ -1,0 +1,51 @@
+﻿@page "/my-leave-requests"
+@using OutOfOffice.BlazorUI.Services.Contracts
+@using OutOfOffice.Common.ViewModels.LeaveRequest
+@inject ILeaveRequestService LeaveRequestService;
+
+
+<MudTable Items="@requestsForCurrentEmployee" Hover="true" SortLabel="Sort By" Filter="new Func<EmployeeLeaveRequestViewModel,bool>(FilterFunc)">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">My leave requests</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.AbsenceReason)">Absence reason</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Comment)">Comment</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.StartDate)">Start date</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.EndDate)">End date</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Status)">Status</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.ApproveStatus)">Approve status</MudTableSortLabel></MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Absence reason">@context.AbsenceReason</MudTd>
+        <MudTd DataLabel="Comment">@context.Comment</MudTd>
+        <MudTd DataLabel="Start date">@context.StartDate</MudTd>
+        <MudTd DataLabel="End date">@context.EndDate</MudTd>
+        <MudTd DataLabel="Status">@context.Status</MudTd>
+        <MudTd DataLabel="Approve status">@context.ApproveStatus</MudTd>
+    </RowTemplate>
+</MudTable>
+
+
+@code {
+    private IEnumerable<EmployeeLeaveRequestViewModel> requestsForCurrentEmployee = new List<EmployeeLeaveRequestViewModel>();
+    private string searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        requestsForCurrentEmployee = await LeaveRequestService.GetMyLeaveRequests(searchString);
+    }
+
+    private bool FilterFunc(EmployeeLeaveRequestViewModel element)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}
