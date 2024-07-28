@@ -1,6 +1,8 @@
 ﻿using Blazored.LocalStorage;
+using Newtonsoft.Json;
 using OutOfOffice.BlazorUI.Services.Contracts;
 using OutOfOffice.Common.Dto;
+using OutOfOffice.Common.ResponseModels;
 using OutOfOffice.Common.ViewModels.LeaveRequest;
 using System.Net.Http.Json;
 using System.Text.Json;
@@ -16,9 +18,13 @@ namespace OutOfOffice.BlazorUI.Services
             _httpClientFactory = httpClientFactory;
         }
 
-        public Task<int> AddLeaveRequest(LeaveRequestDto dto)
+        public async Task AddLeaveRequest(LeaveRequestDto dto)
         {
-            throw new NotImplementedException();
+            var response = await _httpClientFactory.CreateClient("API").PostAsJsonAsync("api/leaverequest", dto);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException("Something went wrong.", null, response.StatusCode);
+            }
         }
 
         public Task<bool> CancelLeaveRequest(int id)

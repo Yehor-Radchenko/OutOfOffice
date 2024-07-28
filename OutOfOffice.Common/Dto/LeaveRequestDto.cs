@@ -17,6 +17,7 @@ namespace OutOfOffice.Common.Dto
         public RequestStatus Status { get; set; }
 
         [Required(ErrorMessage = "AbsenceReason is required.")]
+        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid reason.")]
         public int AbsenceReasonId { get; set; }
     }
 }

@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Mvc;
 using OutOfOffice.BLL.Services;
 using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.ViewModels.LeaveRequest;
-using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 
 namespace OutOfOffice.Controllers;
@@ -64,7 +63,7 @@ public class LeaveRequestController : ControllerBase
     {
         if (ModelState.IsValid)
         {
-            int userId = GetCurrentUserIdFromToken();
+            var userId = int.Parse(User.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             var id = await _leaveRequestService.AddAsync(userId, requestDto);
             return Ok(id);
@@ -99,13 +98,5 @@ public class LeaveRequestController : ControllerBase
             return NoContent();
         else
             return NotFound();
-    }
-
-    private int GetCurrentUserIdFromToken()
-    {
-        var getToken = HttpContext.Request.Cookies["jwt-token"];
-        var convertToken = JwtSecurityTokenConverter.Convert(new Microsoft.IdentityModel.JsonWebTokens.JsonWebToken(getToken));
-        var userId = Convert.ToInt32(convertToken.Claims.FirstOrDefault().Value);
-        return userId;
     }
 }

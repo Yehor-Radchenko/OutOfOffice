@@ -35,7 +35,7 @@ namespace OutOfOffice.BLL.Services
             {
                 Id = sub.Id,
                 ReasonTitle = sub.ReasonTitle
-            });
+            }).ToList();
 
             return subdivisionViewModels;
         }

@@ -21,6 +21,7 @@ builder.Services.AddScoped<AuthenticationStateProvider, CustomAuthenticationStat
 builder.Services.AddScoped<IAuthenticationService, AuthenticationService>();
 builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 builder.Services.AddScoped<ILeaveRequestService, LeaveRequestService>();
+builder.Services.AddScoped<IAbsenceReasonService, AbsenceReasonService>();
 builder.Services.AddAuthorizationCore();
 
 builder.Services.AddHttpClient("API", client =>

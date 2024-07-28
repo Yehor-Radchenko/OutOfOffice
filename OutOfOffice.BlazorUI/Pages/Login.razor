@@ -26,7 +26,6 @@
             <div class="col-md-8 col-lg-6 col-xl-4 offset-xl-1">
                 <EditForm Model="@Model" OnValidSubmit="OnValidSubmit" FormName="LoginForm">
                     <DataAnnotationsValidator />
-                    <ValidationSummary />
                     <div class="d-flex flex-row align-items-center justify-content-center justify-content-lg-start p-3">
                         <p class="lead fw-normal mb-0 me-3">Sign in</p>
                     </div>
@@ -43,14 +42,14 @@
                     <div class="form-outline mb-4">
                         <InputText id="form3Example3" class="form-control form-control-lg"
                                    placeholder="Email address" @bind-Value="Model.Email" />
-                        <ValidationMessage For="@(() => Model.Email)" />
+                        <ValidationMessage For="@(() => Model.Email)" style="margin-top: 5px"/>
                     </div>
 
                     <!-- Password input -->
                     <div class="form-outline mb-3">
                         <InputText class="form-control form-control-lg"
                                    placeholder="Password" @bind-Value="Model.Password" type="password" />
-                        <ValidationMessage For="@(() => Model.Password)" />
+                        <ValidationMessage For="@(() => Model.Password)" style="margin-top: 5px" />
                     </div>
 
                     <div class="text-center text-lg-start mt-4 pt-2">

@@ -11,7 +11,7 @@ namespace OutOfOffice.BlazorUI.Services.Contracts
 
         Task<FullLeaveRequestViewModel> GetFullLeaveRequestViewModel(int id);
 
-        Task<int> AddLeaveRequest(LeaveRequestDto dto);
+        Task AddLeaveRequest(LeaveRequestDto dto);
 
         Task<bool> UpdateLeaveRequest(int id, LeaveRequestDto dto);
 

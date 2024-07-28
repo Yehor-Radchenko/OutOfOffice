@@ -1,14 +1,15 @@
 ﻿@page "/my-leave-requests"
+@using OutOfOffice.BlazorUI.Pages.LeaveRequest
 @using OutOfOffice.BlazorUI.Services.Contracts
 @using OutOfOffice.Common.ViewModels.LeaveRequest
 @inject ILeaveRequestService LeaveRequestService;
-
+@inject NavigationManager NavigationManager
 
 <MudTable Items="@requestsForCurrentEmployee" Hover="true" SortLabel="Sort By" Filter="new Func<EmployeeLeaveRequestViewModel,bool>(FilterFunc)">
     <ToolBarContent>
         <MudText Typo="Typo.h6">My leave requests</MudText>
         <MudSpacer />
-        <MudTextField @bind-Value="searchString" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudTextField @bind-Value="searchString" Placeholder="Search (by leaveRequestId or Comment)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
@@ -30,14 +31,28 @@
     </RowTemplate>
 </MudTable>
 
+<button class="fixed-button" @onclick="SendNewLeaveRequest">
+    <i class="fa fa-plus"></i>
+</button>
 
 @code {
     private IEnumerable<EmployeeLeaveRequestViewModel> requestsForCurrentEmployee = new List<EmployeeLeaveRequestViewModel>();
     private string searchString = "";
+    bool _isAddOperationDialogOpen = false;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadLeaveRequestsAsync();
+    }
+
+    private async Task LoadLeaveRequestsAsync()
+    {
         requestsForCurrentEmployee = await LeaveRequestService.GetMyLeaveRequests(searchString);
+    }
+
+    private void SendNewLeaveRequest()
+    {
+        NavigationManager.NavigateTo("/leave-request/send");
     }
 
     private bool FilterFunc(EmployeeLeaveRequestViewModel element)
@@ -45,6 +60,8 @@
         if (string.IsNullOrWhiteSpace(searchString))
             return true;
         if (element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Comment.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
     }

@@ -12,6 +12,10 @@ using System.Net;
 using Microsoft.OpenApi.Models;
 using OutOfOffice.BLL.Services.Jwt;
 using OutOfOffice.BLL.Services;
+using OutOfOffice.BLL.Services.IService;
+using OutOfOffice.Common.Dto;
+using OutOfOffice.Common.ViewModels.AbsenceReason;
+using OutOfOffice.Common.ViewModels.Subdivision;
 
 public static class ServiceExtensions
 {
@@ -96,8 +100,8 @@ public static class ServiceExtensions
         services.AddScoped<LeaveRequestService>();
         services.AddScoped<ApprovalRequestService>();
         services.AddScoped<ProjectService>();
-        services.AddScoped<AbsenceReasonService>();
-        services.AddScoped<SubdivisionService>();
+        services.AddScoped<IAbsenceReasonService<AbsenceReasonDto, AbsenceReasonViewModel>, AbsenceReasonService>();
+        services.AddScoped<ISubdivisionService<SubdivisionDto, SubdivisionViewModel>, SubdivisionService>();
     }
 
     public static void ConfigureMiddleware(this WebApplication app)
