@@ -210,6 +210,9 @@
                 await LeaveRequestService.UpdateAsync(viewModel.Id, commitUpdateModel);
 
                 Snackbar.Add("Leave request updated successfully!", Severity.Success);
+
+                await LoadLeaveRequestsAsync();
+                StateHasChanged();
             }
             catch (InvalidCastException)
             {
