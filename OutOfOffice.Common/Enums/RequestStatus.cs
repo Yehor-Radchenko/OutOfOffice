@@ -10,7 +10,7 @@ namespace OutOfOffice.Common.Enums
     {
         New,
         Pending,
-        Submited,
+        Submitted,
         Canceled,
         Approved,
         Rejected

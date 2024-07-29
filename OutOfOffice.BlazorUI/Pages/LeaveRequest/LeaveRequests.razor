@@ -1,16 +1,21 @@
 ﻿@page "/my-leave-requests"
 @using OutOfOffice.BlazorUI.Pages.LeaveRequest
 @using OutOfOffice.BlazorUI.Services.Contracts
+@using OutOfOffice.Common.Dto
+@using OutOfOffice.Common.ViewModels.AbsenceReason
 @using OutOfOffice.Common.ViewModels.LeaveRequest
 @inject ILeaveRequestService LeaveRequestService;
 @inject NavigationManager NavigationManager
 
-<MudTable Items="@requestsForCurrentEmployee" Hover="true" SortLabel="Sort By" Filter="new Func<EmployeeLeaveRequestViewModel,bool>(FilterFunc)">
+<MudTable Items="@requestsForCurrentEmployee" Hover="true" SortLabel="Sort By" Filter="new Func<EmployeeLeaveRequestViewModel,bool>(FilterFunc)"
+          CanCancelEdit="true" @bind-SelectedItem="selectedItem" CommitEditTooltip="Commit Edit" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+          RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="true" EditButtonPosition="TableEditButtonPosition.End" ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.EditButton">
     <ToolBarContent>
         <MudText Typo="Typo.h6">My leave requests</MudText>
         <MudSpacer />
         <MudTextField @bind-Value="searchString" Placeholder="Search (by leaveRequestId or Comment)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
+    
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.AbsenceReason)">Absence reason</MudTableSortLabel></MudTh>
@@ -24,11 +29,41 @@
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Absence reason">@context.AbsenceReason</MudTd>
         <MudTd DataLabel="Comment">@context.Comment</MudTd>
-        <MudTd DataLabel="Start date">@context.StartDate</MudTd>
-        <MudTd DataLabel="End date">@context.EndDate</MudTd>
-        <MudTd DataLabel="Status">@context.Status</MudTd>
-        <MudTd DataLabel="Approve status">@context.ApproveStatus</MudTd>
+        <MudTd DataLabel="Start date">@context.StartDate.Value.Date</MudTd>
+        <MudTd DataLabel="End date">@context.EndDate.Value.Date</MudTd>
+        <MudTd DataLabel="Status">
+            <span class="status-frame @GetApproveStatusClass(context.Status)">@context.Status</span>
+        </MudTd>
+        <MudTd DataLabel="Approve status">
+            <span class="status-frame @GetApproveStatusClass(context.ApproveStatus)">@context.ApproveStatus</span>
+        </MudTd>
     </RowTemplate>
+    <RowEditingTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Absence reason">
+            <MudSelect @bind-Value="context.AbsenceReason" Required >
+                @foreach (var reason in absenceReasons)
+                {
+                    <MudSelectItem Value="@reason.Id">@reason.ReasonTitle</MudSelectItem>
+                }
+            </MudSelect>
+        </MudTd>
+        <MudTd DataLabel="Comment">
+            <MudTextField @bind-Value="context.Comment" Required />
+        </MudTd>
+        <MudTd DataLabel="Start date">
+            <MudDatePicker @bind-Date="context.StartDate" Required PickerVariant="PickerVariant.Inline" Placeholder="Select date" />
+        </MudTd>
+        <MudTd DataLabel="End date">
+            <MudDatePicker @bind-Date="context.EndDate" Required PickerVariant="PickerVariant.Inline" Placeholder="Select date" />
+        </MudTd>
+        <MudTd DataLabel="Status">
+            <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Error" OnClick="CancelLeaveRequest">Cancel</MudButton>
+        </MudTd>
+    </RowEditingTemplate>
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+    </EditButtonContent>
 </MudTable>
 
 <button class="fixed-button" @onclick="SendNewLeaveRequest">
@@ -38,7 +73,10 @@
 @code {
     private IEnumerable<EmployeeLeaveRequestViewModel> requestsForCurrentEmployee = new List<EmployeeLeaveRequestViewModel>();
     private string searchString = "";
-    bool _isAddOperationDialogOpen = false;
+    private bool _isAddOperationDialogOpen = false;
+    private EmployeeLeaveRequestViewModel selectedItem = null;
+    private EmployeeLeaveRequestViewModel modelBeforeEdit;
+    private IEnumerable<AbsenceReasonViewModel> absenceReasons = new List<AbsenceReasonViewModel>();
 
     protected override async Task OnInitializedAsync()
     {
@@ -64,5 +102,48 @@
         if (element.Comment.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
+    }
+
+    private string GetApproveStatusClass(string approveStatus)
+    {
+        return approveStatus switch
+        {
+            "New" => "new-status",
+            "Pending" => "pending-status",
+            "Submitted" => "submitted-status",
+            "Canceled" => "canceled-status",
+            "Approved" => "approved-status",
+            "Rejected" => "rejected-status",
+            _ => string.Empty,
+        };
+    }
+
+    private void BackupItem(object model)
+    {
+        modelBeforeEdit = new()
+        {
+            AbsenceReason = ((EmployeeLeaveRequestViewModel)model).AbsenceReason,
+            StartDate = ((EmployeeLeaveRequestViewModel)model).StartDate,
+            EndDate = ((EmployeeLeaveRequestViewModel)model).EndDate,
+            Status = ((EmployeeLeaveRequestViewModel)model).Status
+        };
+    }
+
+    private void ResetItemToOriginalValues(object model)
+    {
+        ((EmployeeLeaveRequestViewModel)model).AbsenceReason = modelBeforeEdit.AbsenceReason;
+        ((EmployeeLeaveRequestViewModel)model).StartDate = modelBeforeEdit.StartDate;
+        ((EmployeeLeaveRequestViewModel)model).EndDate = modelBeforeEdit.EndDate;
+        ((EmployeeLeaveRequestViewModel)model).Comment = modelBeforeEdit.Comment;
+    }
+
+    private void ItemHasBeenCommitted(object model)
+    {
+
+    }
+
+    private async Task CancelLeaveRequest()
+    {
+        
     }
 }

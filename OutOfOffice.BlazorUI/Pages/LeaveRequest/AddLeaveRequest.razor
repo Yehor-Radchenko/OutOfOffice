@@ -1,62 +1,23 @@
 ﻿@page "/leave-request/send"
+@using OutOfOffice.BlazorUI.Components.Forms
+@using OutOfOffice.BlazorUI.Pages.LeaveRequest.Models
 @using OutOfOffice.BlazorUI.Services.Contracts
 @using OutOfOffice.Common.Dto
 @using OutOfOffice.Common.ViewModels.AbsenceReason
-@using System.ComponentModel.DataAnnotations
-@inject IAbsenceReasonService AbsenceReasonService
 @inject ILeaveRequestService LeaveRequestService
 @inject ISnackbar Snackbar
 @inject NavigationManager NavigationManager
 
-<PageTitle>Send leaave request</PageTitle>
+<PageTitle>Send Leave Request</PageTitle>
 
-<MudText Typo="Typo.h4">Send Leave Requset</MudText>
+<MudText Typo="Typo.h4">Send Leave Request</MudText>
 <br />
 
-<EditForm Model="@formModel" OnValidSubmit="HandleValidSubmit">
-    <DataAnnotationsValidator />
-        <MudItem xs="12" sm="7">
-            <MudCard>
-                <MudCardContent>
-                    <MudContainer Style="overflow-y: scroll">
-                        <DataAnnotationsValidator />
-                        <MudSelect @bind-Value="@formModel.AbsenceReasonId" Label="Absence reason" Required="true" Placeholder="Please select" For="@(() => formModel.AbsenceReasonId)">
-                            <MudSelectItem Value="0">*select reason*</MudSelectItem>
-                            @foreach (var reason in _absenceReasons)
-                            {
-                                <MudSelectItem Value="@reason.Id">@reason.ReasonTitle</MudSelectItem>
-                            }
-                        </MudSelect>
-                        <MudTextField @bind-Value="@formModel.Comment" Label="Comment" />
-                        <MudDateRangePicker @ref="_picker" Label="With action buttons" @bind-DateRange="@formModel.DateRange"
-                                        AutoClose=true PickerVariant="PickerVariant.Dialog" MinDate="_minDate">
-                            <PickerActions Context="pickerContext">
-                                <MudButton Class="mr-auto align-self-start" OnClick="@(() => _picker.ClearAsync())">Clear</MudButton>
-                                <MudButton OnClick="@(() => _picker.CloseAsync(false))">Cancel</MudButton>
-                                <MudButton Color="Color.Primary" OnClick="@(() => _picker.CloseAsync())">Ok</MudButton>
-                            </PickerActions>
-                        </MudDateRangePicker>
-                    </MudContainer>
-                </MudCardContent>
-                <MudCardActions>
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary">Send</MudButton>
-                </MudCardActions>
-            </MudCard>
-        </MudItem>
-</EditForm>
+<LeaveRequestForm formModel="@formModel" OnValidSubmit="HandleValidSubmit" />
 
 @code {
-    private MudDateRangePicker _picker;
-    private DateTime _minDate = DateTime.Now.Date.AddDays(7);
-    private int id;
     LeaveRequestFormModel formModel = new LeaveRequestFormModel();
     LeaveRequestDto requestModel = new LeaveRequestDto();
-    IEnumerable<AbsenceReasonViewModel> _absenceReasons = new List<AbsenceReasonViewModel>();
-
-    protected override async Task OnInitializedAsync()
-    {
-        _absenceReasons = await AbsenceReasonService.GetAllAsync();
-    }
 
     private async Task HandleValidSubmit()
     {
@@ -78,20 +39,9 @@
             this.Snackbar.Add("Your request been sent successfully.", Severity.Success);
             NavigationManager.NavigateTo("/my-leave-requests");
         }
-        catch(HttpRequestException ex)
+        catch (HttpRequestException ex)
         {
             this.Snackbar.Add($"Code: {ex.StatusCode}\n{ex.Message}", Severity.Error);
         }
-    }
-
-    class LeaveRequestFormModel
-    {
-        [Required(ErrorMessage = "AbsenceReason is required.")]
-        [Range(1, int.MaxValue, ErrorMessage = "Please select a valid reason.")]
-        public int AbsenceReasonId { get; set; }
-
-        public string Comment { get; set; } = null!;
-
-        public DateRange DateRange { get; set; }
     }
 }

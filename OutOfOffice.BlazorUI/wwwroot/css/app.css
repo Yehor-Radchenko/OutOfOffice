@@ -138,3 +138,41 @@ code {
         font-size: 24px;
     }
 
+.status-frame {
+    background-color: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    padding: 4px 8px;
+    display: inline-block;
+    font-weight: bold;
+}
+
+.new-status {
+    background-color: rgba(255, 255, 0, 0.5);
+    color: #8a842f;
+}
+
+.pending-status {
+    background-color: rgba(255, 255, 0, 0.5);
+    color: #8a842f;
+}
+
+.submitted-status {
+    background-color: rgba(167, 210, 255, 0.5);
+    color: #0b3867;
+}
+
+.canceled-status {
+    background-color: rgba(216, 122, 83, 0.5);
+    color: white;
+}
+
+.approved-status {
+    background-color: rgba(0, 128, 0, 0.5);
+    color: white;
+}
+
+.rejected-status {
+    background-color: rgba(255, 0, 0, 0.5);
+    color: white;
+}

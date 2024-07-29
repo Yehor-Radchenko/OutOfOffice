@@ -132,7 +132,7 @@ public class LeaveRequestService : IRequestService
             StartDate = requestDto.StartDate,
             EndDate = requestDto.EndDate,
             Comment = requestDto.Comment,
-            Status = RequestStatus.Submited,
+            Status = RequestStatus.Submitted,
             AbsenceReasonId = requestDto.AbsenceReasonId,
         };
 
