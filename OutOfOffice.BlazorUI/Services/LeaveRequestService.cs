@@ -4,6 +4,7 @@ using OutOfOffice.BlazorUI.Services.Contracts;
 using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.ResponseModels;
 using OutOfOffice.Common.ViewModels.LeaveRequest;
+using System.Globalization;
 using System.Net.Http.Json;
 using System.Text.Json;
 
@@ -18,7 +19,7 @@ namespace OutOfOffice.BlazorUI.Services
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task AddLeaveRequest(LeaveRequestDto dto)
+        public async Task AddAsync(LeaveRequestDto dto)
         {
             var response = await _httpClientFactory.CreateClient("API").PostAsJsonAsync("api/leaverequest", dto);
             if (!response.IsSuccessStatusCode)
@@ -32,7 +33,7 @@ namespace OutOfOffice.BlazorUI.Services
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<TableLeaveRequestViewModel>> GetAllLeaveRequests(string? searchString = null)
+        public async Task<IEnumerable<TableLeaveRequestViewModel>> GetAllLeaveRequestsAsync(string? searchString = null)
         {
             var queryString = string.IsNullOrEmpty(searchString) ? string.Empty : $"?searchValue={searchString}";
 
@@ -43,12 +44,12 @@ namespace OutOfOffice.BlazorUI.Services
             return leaveRequests;
         }
 
-        public Task<FullLeaveRequestViewModel> GetFullLeaveRequestViewModel(int id)
+        public Task<FullLeaveRequestViewModel> GetFullLeaveRequestViewModelAsync(int id)
         {
             throw new NotImplementedException();
         }
 
-        public async Task<IEnumerable<EmployeeLeaveRequestViewModel>> GetMyLeaveRequests(string? searchString = null)
+        public async Task<IEnumerable<EmployeeLeaveRequestViewModel>> GetMyLeaveRequestsAsync(string? searchString = null)
         {
             var queryString = string.IsNullOrEmpty(searchString) ? string.Empty : $"?searchValue={searchString}";
 
@@ -58,9 +59,13 @@ namespace OutOfOffice.BlazorUI.Services
             return leaveRequests;
         }
 
-        public Task<bool> UpdateLeaveRequest(int id, LeaveRequestDto dto)
+        public async Task UpdateAsync(int id, LeaveRequestDto dto)
         {
-            throw new NotImplementedException();
+            var response = await _httpClientFactory.CreateClient("API").PutAsJsonAsync($"api/leaverequest/{id}", dto);
+            if (!response.IsSuccessStatusCode)
+            {
+                throw new HttpRequestException("Something went wrong.", null, response.StatusCode);
+            }
         }
     }
 }

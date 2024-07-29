@@ -2,14 +2,18 @@
 @using OutOfOffice.BlazorUI.Pages.LeaveRequest
 @using OutOfOffice.BlazorUI.Services.Contracts
 @using OutOfOffice.Common.Dto
+@using OutOfOffice.Common.Enums
 @using OutOfOffice.Common.ViewModels.AbsenceReason
 @using OutOfOffice.Common.ViewModels.LeaveRequest
 @inject ILeaveRequestService LeaveRequestService;
+@inject IAbsenceReasonService AbsenceReasonService
 @inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
 
 <MudTable Items="@requestsForCurrentEmployee" Hover="true" SortLabel="Sort By" Filter="new Func<EmployeeLeaveRequestViewModel,bool>(FilterFunc)"
           CanCancelEdit="true" @bind-SelectedItem="selectedItem" CommitEditTooltip="Commit Edit" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
-          RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="true" EditButtonPosition="TableEditButtonPosition.End" ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.EditButton">
+          RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="true" EditButtonPosition="TableEditButtonPosition.End" 
+          ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.EditButton">
     <ToolBarContent>
         <MudText Typo="Typo.h6">My leave requests</MudText>
         <MudSpacer />
@@ -18,7 +22,7 @@
     
     <HeaderContent>
         <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
-        <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.AbsenceReason)">Absence reason</MudTableSortLabel></MudTh>
+        <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.AbsenceReason.ReasonTitle)">Absence reason</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Comment)">Comment</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.StartDate)">Start date</MudTableSortLabel></MudTh>
         <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.EndDate)">End date</MudTableSortLabel></MudTh>
@@ -27,10 +31,10 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
-        <MudTd DataLabel="Absence reason">@context.AbsenceReason</MudTd>
+        <MudTd DataLabel="Absence reason">@context.AbsenceReason.ReasonTitle</MudTd>
         <MudTd DataLabel="Comment">@context.Comment</MudTd>
-        <MudTd DataLabel="Start date">@context.StartDate.Value.Date</MudTd>
-        <MudTd DataLabel="End date">@context.EndDate.Value.Date</MudTd>
+        <MudTd DataLabel="Start date">@context.StartDate.Value.ToShortDateString()</MudTd>
+        <MudTd DataLabel="End date">@context.EndDate.Value.ToShortDateString()</MudTd>
         <MudTd DataLabel="Status">
             <span class="status-frame @GetApproveStatusClass(context.Status)">@context.Status</span>
         </MudTd>
@@ -41,7 +45,7 @@
     <RowEditingTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
         <MudTd DataLabel="Absence reason">
-            <MudSelect @bind-Value="context.AbsenceReason" Required >
+            <MudSelect @bind-Value="context.AbsenceReason.Id" Required Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
                 @foreach (var reason in absenceReasons)
                 {
                     <MudSelectItem Value="@reason.Id">@reason.ReasonTitle</MudSelectItem>
@@ -53,12 +57,30 @@
         </MudTd>
         <MudTd DataLabel="Start date">
             <MudDatePicker @bind-Date="context.StartDate" Required PickerVariant="PickerVariant.Inline" Placeholder="Select date" />
+            @if (!string.IsNullOrEmpty(startDateValidationMessage))
+            {
+                <MudText Typo="Typo.caption" Color="Color.Error">@startDateValidationMessage</MudText>
+            }
         </MudTd>
         <MudTd DataLabel="End date">
             <MudDatePicker @bind-Date="context.EndDate" Required PickerVariant="PickerVariant.Inline" Placeholder="Select date" />
+            @if (!string.IsNullOrEmpty(endDateValidationMessage))
+            {
+                <MudText Typo="Typo.caption" Color="Color.Error">@endDateValidationMessage</MudText>
+            }
         </MudTd>
         <MudTd DataLabel="Status">
-            <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Error" OnClick="CancelLeaveRequest">Cancel</MudButton>
+            @if (isRequestStatusCancel)
+            {
+                <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="DiscardCancelation">Discard</MudButton>
+            }
+            else
+            {
+                <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Error" OnClick="CancelLeaveRequest">Cancel</MudButton>
+            }
+        </MudTd>
+        <MudTd DataLabel="Approve status">
+            <span class="status-frame @GetApproveStatusClass(context.ApproveStatus)">@context.ApproveStatus</span>
         </MudTd>
     </RowEditingTemplate>
     <EditButtonContent Context="button">
@@ -74,9 +96,13 @@
     private IEnumerable<EmployeeLeaveRequestViewModel> requestsForCurrentEmployee = new List<EmployeeLeaveRequestViewModel>();
     private string searchString = "";
     private bool _isAddOperationDialogOpen = false;
-    private EmployeeLeaveRequestViewModel selectedItem = null;
-    private EmployeeLeaveRequestViewModel modelBeforeEdit;
+    private EmployeeLeaveRequestViewModel selectedItem = null!;
+    private EmployeeLeaveRequestViewModel modelBeforeEdit = null!;
     private IEnumerable<AbsenceReasonViewModel> absenceReasons = new List<AbsenceReasonViewModel>();
+    private string startDateValidationMessage = string.Empty;
+    private string endDateValidationMessage = string.Empty;
+    private LeaveRequestDto commitUpdateModel = new LeaveRequestDto();
+    private bool isRequestStatusCancel = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -85,7 +111,7 @@
 
     private async Task LoadLeaveRequestsAsync()
     {
-        requestsForCurrentEmployee = await LeaveRequestService.GetMyLeaveRequests(searchString);
+        requestsForCurrentEmployee = await LeaveRequestService.GetMyLeaveRequestsAsync(searchString);
     }
 
     private void SendNewLeaveRequest()
@@ -118,32 +144,93 @@
         };
     }
 
-    private void BackupItem(object model)
+    private async void BackupItem(object model)
     {
+        if (absenceReasons.Count() < 1)
+        {
+            absenceReasons = await AbsenceReasonService.GetAllAsync();
+        }
+
         modelBeforeEdit = new()
         {
             AbsenceReason = ((EmployeeLeaveRequestViewModel)model).AbsenceReason,
             StartDate = ((EmployeeLeaveRequestViewModel)model).StartDate,
             EndDate = ((EmployeeLeaveRequestViewModel)model).EndDate,
-            Status = ((EmployeeLeaveRequestViewModel)model).Status
+            Status = ((EmployeeLeaveRequestViewModel)model).Status,
+            Comment = ((EmployeeLeaveRequestViewModel)model).Comment
         };
     }
 
     private void ResetItemToOriginalValues(object model)
     {
-        ((EmployeeLeaveRequestViewModel)model).AbsenceReason = modelBeforeEdit.AbsenceReason;
-        ((EmployeeLeaveRequestViewModel)model).StartDate = modelBeforeEdit.StartDate;
-        ((EmployeeLeaveRequestViewModel)model).EndDate = modelBeforeEdit.EndDate;
-        ((EmployeeLeaveRequestViewModel)model).Comment = modelBeforeEdit.Comment;
+        EmployeeLeaveRequestViewModel viewModel = (EmployeeLeaveRequestViewModel)model;
+        viewModel.AbsenceReason = modelBeforeEdit.AbsenceReason;
+        viewModel.StartDate = modelBeforeEdit.StartDate;
+        viewModel.Status = modelBeforeEdit.Status;
+        viewModel.EndDate = modelBeforeEdit.EndDate;
+        viewModel.Comment = modelBeforeEdit.Comment;
     }
 
-    private void ItemHasBeenCommitted(object model)
+    private async void ItemHasBeenCommitted(object model)
     {
+        EmployeeLeaveRequestViewModel viewModel = (EmployeeLeaveRequestViewModel)model;
 
+        if (AreDatesValid(viewModel.StartDate, viewModel.EndDate))
+        {
+            try
+            {
+                commitUpdateModel.AbsenceReasonId = viewModel.AbsenceReason.Id;
+                commitUpdateModel.Comment = viewModel.Comment;
+                commitUpdateModel.StartDate = (DateTime)viewModel.StartDate;
+                commitUpdateModel.EndDate = (DateTime)viewModel.EndDate;
+
+                if(!isRequestStatusCancel)
+                    commitUpdateModel.Status = (RequestStatus)Enum.Parse(typeof(RequestStatus), viewModel.Status);
+                else
+                    commitUpdateModel.Status = RequestStatus.Canceled;
+
+                await LeaveRequestService.UpdateAsync(viewModel.Id, commitUpdateModel);
+
+                Snackbar.Add("Leave request updated successfully!", Severity.Success);
+            }
+            catch (InvalidCastException)
+            {
+                Snackbar.Add("Cast exception occures. Contact to administrator.", Severity.Error);
+            }
+            catch (FormatException)
+            {
+                Snackbar.Add("Format exception occures.", Severity.Error);
+            }
+            catch (HttpRequestException ex)
+            {
+                Snackbar.Add($"Code: {ex.StatusCode} Message: {ex.Message}", Severity.Error);
+            }
+        }
     }
 
-    private async Task CancelLeaveRequest()
+    private bool AreDatesValid(DateTime? start, DateTime? end)
     {
-        
+        startDateValidationMessage = string.Empty;
+        endDateValidationMessage = string.Empty;
+
+        if (start > end)
+        {
+            startDateValidationMessage = "Start date cannot be after end date.";
+            endDateValidationMessage = "End date cannot be before start date.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private void CancelLeaveRequest()
+    {
+        //ToDo: call dialog
+        isRequestStatusCancel = true;
+    }
+
+    private void DiscardCancelation()
+    {
+        isRequestStatusCancel = false;
     }
 }

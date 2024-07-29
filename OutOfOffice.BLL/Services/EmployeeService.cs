@@ -9,6 +9,7 @@ using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 using OutOfOffice.BLL.Services.IService;
+using OutOfOffice.Common.ViewModels.AbsenceReason;
 
 namespace OutOfOffice.BLL.Services;
 
@@ -176,7 +177,11 @@ public class EmployeeService : IEmployeeService
                     .Select(lr => new EmployeeLeaveRequestViewModel
                     {
                         Id = lr.Id,
-                        AbsenceReason = lr.AbsenceReason.ReasonTitle,
+                        AbsenceReason = new AbsenceReasonViewModel()
+                        {
+                            Id = lr.AbsenceReason.Id,
+                            ReasonTitle = lr.AbsenceReason.ReasonTitle,
+                        },
                         StartDate = lr.StartDate,
                         EndDate = lr.EndDate,
                         Comment = lr.Comment,

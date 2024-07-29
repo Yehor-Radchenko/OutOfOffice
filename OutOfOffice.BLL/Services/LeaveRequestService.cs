@@ -7,6 +7,7 @@ using OutOfOffice.Common.Enums;
 using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 using OutOfOffice.BLL.Services.IService;
+using OutOfOffice.Common.ViewModels.AbsenceReason;
 
 namespace OutOfOffice.BLL.Services;
 
@@ -86,7 +87,11 @@ public class LeaveRequestService : IRequestService
             EndDate = leaveRequest.EndDate,
             Comment = leaveRequest.Comment,
             Status = leaveRequest.Status.ToString(),
-            AbsenceReason = leaveRequest.AbsenceReason.ReasonTitle,
+            AbsenceReason = new AbsenceReasonViewModel() 
+            {
+                Id = leaveRequest.AbsenceReason.Id,
+                ReasonTitle = leaveRequest.AbsenceReason.ReasonTitle,
+            },
             ApproveStatus = leaveRequest.ApprovalRequest != null ? leaveRequest.ApprovalRequest.Status.ToString() : RequestStatus.Pending.ToString(),
         }).ToList();
 
