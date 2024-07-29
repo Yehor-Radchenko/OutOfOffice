@@ -30,8 +30,6 @@ namespace OutOfOffice.DAL.Models
         [ForeignKey(nameof(AbsenceReason))]
         public int AbsenceReasonId { get; set; }
 
-        public int ApprovalRequestId { get; set; }
-
         public AbsenceReason AbsenceReason { get; set; } = null!;
 
         public Employee Employee { get; set; } = null!;

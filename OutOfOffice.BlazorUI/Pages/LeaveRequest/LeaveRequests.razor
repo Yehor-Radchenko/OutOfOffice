@@ -1,4 +1,5 @@
 ﻿@page "/my-leave-requests"
+@using OutOfOffice.BlazorUI.Components.Dialogs
 @using OutOfOffice.BlazorUI.Pages.LeaveRequest
 @using OutOfOffice.BlazorUI.Services.Contracts
 @using OutOfOffice.Common.Dto
@@ -9,15 +10,16 @@
 @inject IAbsenceReasonService AbsenceReasonService
 @inject NavigationManager NavigationManager
 @inject ISnackbar Snackbar
+@inject IDialogService DialogService
 
 <MudTable Items="@requestsForCurrentEmployee" Hover="true" SortLabel="Sort By" Filter="new Func<EmployeeLeaveRequestViewModel,bool>(FilterFunc)"
-          CanCancelEdit="true" @bind-SelectedItem="selectedItem" CommitEditTooltip="Commit Edit" RowEditPreview="BackupItem" RowEditCancel="ResetItemToOriginalValues"
+          CanCancelEdit="true" @bind-SelectedItem="selectedItem" CommitEditTooltip="Commit Edit" RowEditPreview="OnRowEditModeInitialized" RowEditCancel="ResetItemToOriginalValues"
           RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="true" EditButtonPosition="TableEditButtonPosition.End" 
           ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.EditButton">
     <ToolBarContent>
         <MudText Typo="Typo.h6">My leave requests</MudText>
         <MudSpacer />
-        <MudTextField @bind-Value="searchString" Placeholder="Search (by leaveRequestId or Comment)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+        <MudTextField @bind-Value="searchString" Placeholder="Search (by Id or Comment)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
     </ToolBarContent>
     
     <HeaderContent>
@@ -36,10 +38,10 @@
         <MudTd DataLabel="Start date">@context.StartDate.Value.ToShortDateString()</MudTd>
         <MudTd DataLabel="End date">@context.EndDate.Value.ToShortDateString()</MudTd>
         <MudTd DataLabel="Status">
-            <span class="status-frame @GetApproveStatusClass(context.Status)">@context.Status</span>
+            <span class="status-frame @GetApproveStatusCssClass(context.Status)">@context.Status</span>
         </MudTd>
         <MudTd DataLabel="Approve status">
-            <span class="status-frame @GetApproveStatusClass(context.ApproveStatus)">@context.ApproveStatus</span>
+            <span class="status-frame @GetApproveStatusCssClass(context.ApproveStatus)">@context.ApproveStatus</span>
         </MudTd>
     </RowTemplate>
     <RowEditingTemplate>
@@ -70,17 +72,17 @@
             }
         </MudTd>
         <MudTd DataLabel="Status">
-            @if (isRequestStatusCancel)
+            @if (isLocalRequestStatusCanceled)
             {
                 <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="DiscardCancelation">Discard</MudButton>
             }
             else
             {
-                <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Error" OnClick="CancelLeaveRequest">Cancel</MudButton>
+                <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Error" OnClick="OpenCancelDialog" Disabled="@isRequestAlreadyCanceled">Cancel</MudButton>
             }
         </MudTd>
         <MudTd DataLabel="Approve status">
-            <span class="status-frame @GetApproveStatusClass(context.ApproveStatus)">@context.ApproveStatus</span>
+            <span class="status-frame @GetApproveStatusCssClass(context.ApproveStatus)">@context.ApproveStatus</span>
         </MudTd>
     </RowEditingTemplate>
     <EditButtonContent Context="button">
@@ -102,7 +104,8 @@
     private string startDateValidationMessage = string.Empty;
     private string endDateValidationMessage = string.Empty;
     private LeaveRequestDto commitUpdateModel = new LeaveRequestDto();
-    private bool isRequestStatusCancel = false;
+    private bool isLocalRequestStatusCanceled = false;
+    private bool isRequestAlreadyCanceled = false;
 
     protected override async Task OnInitializedAsync()
     {
@@ -130,7 +133,7 @@
         return false;
     }
 
-    private string GetApproveStatusClass(string approveStatus)
+    private string GetApproveStatusCssClass(string approveStatus)
     {
         return approveStatus switch
         {
@@ -144,20 +147,35 @@
         };
     }
 
-    private async void BackupItem(object model)
+    private async void OnRowEditModeInitialized(object model)
     {
+        isLocalRequestStatusCanceled = false;
+        isRequestAlreadyCanceled = false;
         if (absenceReasons.Count() < 1)
         {
             absenceReasons = await AbsenceReasonService.GetAllAsync();
         }
 
+        EmployeeLeaveRequestViewModel viewModel = (EmployeeLeaveRequestViewModel)model;
+
+        if (viewModel.Status == "Canceled")
+        {
+            isRequestAlreadyCanceled = true;
+            StateHasChanged();
+        }
+
+        BackupItem(viewModel);
+    }
+
+    private void BackupItem(EmployeeLeaveRequestViewModel tableItem)
+    {
         modelBeforeEdit = new()
         {
-            AbsenceReason = ((EmployeeLeaveRequestViewModel)model).AbsenceReason,
-            StartDate = ((EmployeeLeaveRequestViewModel)model).StartDate,
-            EndDate = ((EmployeeLeaveRequestViewModel)model).EndDate,
-            Status = ((EmployeeLeaveRequestViewModel)model).Status,
-            Comment = ((EmployeeLeaveRequestViewModel)model).Comment
+            AbsenceReason = ((EmployeeLeaveRequestViewModel)tableItem).AbsenceReason,
+            StartDate = ((EmployeeLeaveRequestViewModel)tableItem).StartDate,
+            EndDate = ((EmployeeLeaveRequestViewModel)tableItem).EndDate,
+            Status = ((EmployeeLeaveRequestViewModel)tableItem).Status,
+            Comment = ((EmployeeLeaveRequestViewModel)tableItem).Comment
         };
     }
 
@@ -184,7 +202,7 @@
                 commitUpdateModel.StartDate = (DateTime)viewModel.StartDate;
                 commitUpdateModel.EndDate = (DateTime)viewModel.EndDate;
 
-                if(!isRequestStatusCancel)
+                if(!isLocalRequestStatusCanceled)
                     commitUpdateModel.Status = (RequestStatus)Enum.Parse(typeof(RequestStatus), viewModel.Status);
                 else
                     commitUpdateModel.Status = RequestStatus.Canceled;
@@ -223,14 +241,29 @@
         return true;
     }
 
+    private async void OpenCancelDialog()
+    {
+        var dialog = DialogService.Show<CancelLeaveRequestDialog>("Confirm Cancellation");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            bool isConfirmed = (bool)result.Data!;
+            if (isConfirmed)
+            {
+                CancelLeaveRequest();
+            }
+        }
+    }
+
     private void CancelLeaveRequest()
     {
-        //ToDo: call dialog
-        isRequestStatusCancel = true;
+        isLocalRequestStatusCanceled = true;
+        StateHasChanged();
     }
 
     private void DiscardCancelation()
     {
-        isRequestStatusCancel = false;
+        isLocalRequestStatusCanceled = false;
     }
 }

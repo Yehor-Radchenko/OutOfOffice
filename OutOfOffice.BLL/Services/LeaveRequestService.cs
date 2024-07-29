@@ -80,19 +80,33 @@ public class LeaveRequestService : IRequestService
 
         var leaveRequests = await query.ToListAsync();
 
-        var viewModelList = leaveRequests.Select(leaveRequest => new EmployeeLeaveRequestViewModel
+        var viewModelList = leaveRequests.Select(leaveRequest => 
         {
-            Id = leaveRequest.Id,
-            StartDate = leaveRequest.StartDate,
-            EndDate = leaveRequest.EndDate,
-            Comment = leaveRequest.Comment,
-            Status = leaveRequest.Status.ToString(),
-            AbsenceReason = new AbsenceReasonViewModel() 
+            var approveStatus = RequestStatus.Pending.ToString();
+
+            if (leaveRequest.Status == RequestStatus.Canceled)
             {
-                Id = leaveRequest.AbsenceReason.Id,
-                ReasonTitle = leaveRequest.AbsenceReason.ReasonTitle,
-            },
-            ApproveStatus = leaveRequest.ApprovalRequest != null ? leaveRequest.ApprovalRequest.Status.ToString() : RequestStatus.Pending.ToString(),
+                approveStatus = RequestStatus.Canceled.ToString();
+            }
+            else if (leaveRequest.ApprovalRequest != null)
+            {
+                approveStatus = leaveRequest.ApprovalRequest.Status.ToString();
+            }
+
+            return new EmployeeLeaveRequestViewModel
+            {
+                Id = leaveRequest.Id,
+                StartDate = leaveRequest.StartDate,
+                EndDate = leaveRequest.EndDate,
+                Comment = leaveRequest.Comment,
+                Status = leaveRequest.Status.ToString(),
+                AbsenceReason = new AbsenceReasonViewModel()
+                {
+                    Id = leaveRequest.AbsenceReason.Id,
+                    ReasonTitle = leaveRequest.AbsenceReason.ReasonTitle,
+                },
+                ApproveStatus = approveStatus,
+            };
         }).ToList();
 
         return viewModelList;
@@ -149,7 +163,9 @@ public class LeaveRequestService : IRequestService
 
     public async Task<bool> UpdateAsync(int id, LeaveRequestDto expectedValues)
     {
-        var leaveRequest = await _context.LeaveRequests.FindAsync(id);
+        var leaveRequest = await _context.LeaveRequests
+            .Include(lr => lr.ApprovalRequest)
+            .FirstOrDefaultAsync(lr => lr.Id == id);
 
         if (leaveRequest == null)
         {
@@ -160,6 +176,10 @@ public class LeaveRequestService : IRequestService
         leaveRequest.EndDate = expectedValues.EndDate;
         leaveRequest.Comment = expectedValues.Comment;
         leaveRequest.Status = expectedValues.Status;
+        if (leaveRequest.ApprovalRequest is not null)
+        {
+            leaveRequest.ApprovalRequest.Status = expectedValues.Status;
+        }
         leaveRequest.AbsenceReasonId = expectedValues.AbsenceReasonId;
 
         await _context.SaveChangesAsync();
