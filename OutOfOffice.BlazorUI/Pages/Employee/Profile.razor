@@ -4,6 +4,7 @@
 
 @using Blazored.LocalStorage
 @using OutOfOffice.BlazorUI.Components.Image
+@using OutOfOffice.BlazorUI.Components.UploadFile
 @using OutOfOffice.BlazorUI.Services
 @using OutOfOffice.BlazorUI.Services.Contracts
 @using OutOfOffice.Common.ViewModels.Employee
@@ -17,17 +18,19 @@
             <MudGrid>
                 <MudItem xs="12" md="4" class="profile-photo" style="text-align: center;">
                     <div>
-                        @if (ViewModel?.PhotoBase64 != null && ViewModel.PhotoBase64.Length > 0)
+                        @if (ViewModel is not null)
                         {
-                            <Avatar PhotoBase64="@(ViewModel.PhotoBase64)" />
+                            @if (ViewModel?.PhotoBase64 != null && ViewModel.PhotoBase64.Length > 0)
+                            {
+                                <Avatar PhotoBase64="@(ViewModel.PhotoBase64)" />
+                                <PhotoActions UserId="ViewModel.Id" UserHasPhoto="true"/>
+                            }
+                            else
+                            {
+                                <img src="images/default_profile_image.jpg" alt="Default Profile Photo" class="avatar-image-profile" />
+                                <PhotoActions UserId="ViewModel.Id" UserHasPhoto="false" />
+                            }
                         }
-                        else
-                        {
-                            <img src="images/default_profile_image.jpg" alt="Default Profile Photo" class="avatar-image-profile" />
-                        }
-                        @* <input type="file" @onchange="HandleFileSelected" style="display: none;" id="fileInput" />
-                        <MudLink OnClick="OpenUploadFileDialog" Underline="Underline.Always" Style="margin-bottom: 15px;"></MudLink> *@
-
                         <MudText Typo="Typo.h5">@ViewModel?.FullName</MudText>
                     </div>
                 </MudItem>
@@ -151,7 +154,7 @@
 
 @code {
     [Parameter]
-    public FullEmployeeViewModel ViewModel { get; set; }
+    public FullEmployeeViewModel ViewModel { get; set; } = null!;
     public EmployeeLeaveRequestViewModel selectedItem = new EmployeeLeaveRequestViewModel();
 
     protected override async Task OnInitializedAsync()

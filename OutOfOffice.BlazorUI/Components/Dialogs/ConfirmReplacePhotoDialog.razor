@@ -1,0 +1,24 @@
+﻿<MudDialog>
+    <TitleContent>Confirm removing photo</TitleContent>
+    <DialogContent>
+        <p>Are you sure you want to replace existing photo? It will be instatntly removed.</p>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="CloseDialog">Cancel</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Error" OnClick="ConfirmCancel">Remove</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; } = null!;
+
+    private void CloseDialog()
+    {
+        MudDialog.Cancel();
+    }
+
+    private void ConfirmCancel()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

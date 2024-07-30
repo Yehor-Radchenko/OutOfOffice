@@ -111,7 +111,7 @@ public class EmployeeController : ControllerBase
 
     [HttpPut("photo/remove")]
     [Authorize]
-    public async Task<IActionResult> RemovePhotoAsync(int employeeId)
+    public async Task<IActionResult> RemovePhotoAsync([FromQuery] int employeeId)
     {
         try
         {
@@ -124,9 +124,9 @@ public class EmployeeController : ControllerBase
         }
     }
 
-    [HttpPut("photo/upload{employeeId}")]
+    [HttpPut("photo/upload")]
     [Authorize]
-    public async Task<IActionResult> UploadPhotoToEmployeeAsync(int employeeId, [FromBody] string photoBase64)
+    public async Task<IActionResult> UploadPhotoToEmployeeAsync([FromQuery] int employeeId, [FromBody] string photoBase64)
     {
         try
         {

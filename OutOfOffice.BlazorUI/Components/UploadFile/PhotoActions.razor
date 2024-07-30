@@ -1,0 +1,88 @@
+﻿@using OutOfOffice.BlazorUI.Components.Dialogs
+@using OutOfOffice.BlazorUI.Services.Contracts
+@inject IEmployeeService EmployeeService
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+@inject NavigationManager NavigationManager
+
+<div style="margin-bottom:20px;">
+    <span>
+        <MudFileUpload T="IBrowserFile" FilesChanged="UploadPhoto" class="file-upload">
+            <ActivatorContent>
+                <MudLink Typo="Typo.body2" OnClick="PreventDefault">Upload</MudLink>
+            </ActivatorContent>
+        </MudFileUpload> | <MudLink Typo="Typo.body2" OnClick="RemovePhoto">Remove</MudLink>
+    </span>
+</div>
+
+@code {
+    [Parameter, EditorRequired]
+    public int UserId { get; set; }
+    [Parameter, EditorRequired]
+    public bool UserHasPhoto { get; set; }
+
+    private async Task UploadPhoto(IBrowserFile browserFile)
+    {
+        if (browserFile != null)
+        {
+            try
+            {
+                var format = "image/jpeg";
+                var resizedPhoto = await browserFile.RequestImageFileAsync(format, 200, 200);
+
+                if (UserHasPhoto)
+                {
+                    var dialog = DialogService.Show<ConfirmRemovePhotoDialog>();
+                    if (!dialog.Result.IsCanceled)
+                    {
+                        await EmployeeService.UploadEmployeePhoto(UserId, resizedPhoto);
+                    }
+                }
+                else
+                    await EmployeeService.UploadEmployeePhoto(UserId, resizedPhoto);
+
+                Snackbar.Add("Photo uploaded successfully.", Severity.Success);
+
+                NavigationManager.Refresh();
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+    }
+
+    private async Task RemovePhoto()
+    {
+        try
+        {
+            if (UserHasPhoto)
+            {
+                var dialog = DialogService.Show<ConfirmReplacePhotoDialog>();
+                if (!dialog.Result.IsCanceled)
+                {
+                    await EmployeeService.RemoveEmployeePhoto(UserId);
+                    StateHasChanged();
+                    Snackbar.Add("Photo been removed.", Severity.Success);
+                    NavigationManager.Refresh();
+                }
+            }
+            else
+                Snackbar.Add("User have no photo to remove", Severity.Error);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+
+    private void PreventDefault(MouseEventArgs e)
+    {
+    }
+}
+
+<style>
+    .file-upload {
+        display: inline-block;
+    }
+</style>

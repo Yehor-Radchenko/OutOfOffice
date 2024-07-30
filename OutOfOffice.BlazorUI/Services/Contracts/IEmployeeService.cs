@@ -1,4 +1,5 @@
-﻿using OutOfOffice.Common.Dto;
+﻿using Microsoft.AspNetCore.Components.Forms;
+using OutOfOffice.Common.Dto;
 using OutOfOffice.Common.Enums;
 using OutOfOffice.Common.ViewModels.Employee;
 
@@ -13,6 +14,6 @@ namespace OutOfOffice.BlazorUI.Services.Contracts
         Task<List<TableEmployeeViewModel>> GetTableDataAsync(string? search = null);
         Task<int> UpdateEmployeeAsync(int id, EmployeeDto dto);
         Task RemoveEmployeePhoto(int employeeId);
-        Task UploadEmployeePhoto(int employeeId, byte[] photoBytes);
+        Task UploadEmployeePhoto(int employeeId, IBrowserFile file);
     }
 }

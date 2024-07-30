@@ -8,6 +8,7 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using System.Threading.Tasks;
 using Blazored.LocalStorage;
+using Microsoft.AspNetCore.Components.Forms;
 
 namespace OutOfOffice.BlazorUI.Services;
 
@@ -69,15 +70,28 @@ public class EmployeeService : IEmployeeService
 
     public async Task RemoveEmployeePhoto(int employeeId)
     {
-        var response = await _httpClientFactory.CreateClient("API").PutAsJsonAsync($"api/employee/photo/remove", employeeId);
+        var response = await _httpClientFactory.CreateClient("API").PutAsJsonAsync($"api/employee/photo/remove?employeeId={employeeId}", employeeId);
         response.EnsureSuccessStatusCode();
     }
 
-    public async Task UploadEmployeePhoto(int employeeId, byte[] photoBytes)
+    public async Task UploadEmployeePhoto(int employeeId, IBrowserFile file)
     {
-        var photoBase64 = Convert.ToBase64String(photoBytes);
+        var photoBase64 = await GetBase64FromIBrowserFile(file);
 
         var response = await _httpClientFactory.CreateClient("API").PutAsJsonAsync($"api/employee/photo/upload?employeeId={employeeId}", photoBase64);
         response.EnsureSuccessStatusCode();
+    }
+
+    private static async Task<string> GetBase64FromIBrowserFile(IBrowserFile file)
+    {
+        var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());
+        await using var fs = new FileStream(path, FileMode.Create);
+        await file.OpenReadStream(file.Size).CopyToAsync(fs);
+        var bytes = new byte[file.Size];
+        fs.Position = 0;
+        await fs.ReadAsync(bytes);
+        fs.Close();
+        File.Delete(path);
+        return Convert.ToBase64String(bytes);
     }
 }
