@@ -13,8 +13,9 @@
 @inject IDialogService DialogService
 
 <MudTable Items="@requestsForCurrentEmployee" Hover="true" SortLabel="Sort By" Filter="new Func<EmployeeLeaveRequestViewModel,bool>(FilterFunc)"
-          CanCancelEdit="true" @bind-SelectedItem="selectedItem" CommitEditTooltip="Commit Edit" RowEditPreview="OnRowEditModeInitialized" RowEditCancel="ResetItemToOriginalValues"
-          RowEditCommit="ItemHasBeenCommitted" IsEditRowSwitchingBlocked="true" EditButtonPosition="TableEditButtonPosition.End" 
+          CanCancelEdit="true" @bind-SelectedItem="selectedItem" CommitEditTooltip="Commit Edit" CancelEditTooltip="Cancel Edit" 
+          RowEditPreview="OnRowEditModeInitialized" RowEditCancel="ResetItemToOriginalValues" RowEditCommit="ItemHasBeenCommitted" 
+          IsEditRowSwitchingBlocked="true" EditButtonPosition="TableEditButtonPosition.End" 
           ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.EditButton">
     <ToolBarContent>
         <MudText Typo="Typo.h6">My leave requests</MudText>
@@ -38,10 +39,10 @@
         <MudTd DataLabel="Start date">@context.StartDate.Value.ToShortDateString()</MudTd>
         <MudTd DataLabel="End date">@context.EndDate.Value.ToShortDateString()</MudTd>
         <MudTd DataLabel="Status">
-            <span class="status-frame @GetApproveStatusCssClass(context.Status)">@context.Status</span>
+            <span class="status-frame @GetStatusCssClass(context.Status)">@context.Status</span>
         </MudTd>
         <MudTd DataLabel="Approve status">
-            <span class="status-frame @GetApproveStatusCssClass(context.ApproveStatus)">@context.ApproveStatus</span>
+            <span class="status-frame @GetStatusCssClass(context.ApproveStatus)">@context.ApproveStatus</span>
         </MudTd>
     </RowTemplate>
     <RowEditingTemplate>
@@ -82,7 +83,7 @@
             }
         </MudTd>
         <MudTd DataLabel="Approve status">
-            <span class="status-frame @GetApproveStatusCssClass(context.ApproveStatus)">@context.ApproveStatus</span>
+            <span class="status-frame @GetStatusCssClass(context.ApproveStatus)">@context.ApproveStatus</span>
         </MudTd>
     </RowEditingTemplate>
     <EditButtonContent Context="button">
@@ -133,7 +134,7 @@
         return false;
     }
 
-    private string GetApproveStatusCssClass(string approveStatus)
+    private string GetStatusCssClass(string approveStatus)
     {
         return approveStatus switch
         {

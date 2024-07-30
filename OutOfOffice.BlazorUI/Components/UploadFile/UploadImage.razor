@@ -1,0 +1,27 @@
+﻿@using OutOfOffice.BlazorUI.Services.Contracts
+@inject IEmployeeService EmployeeService
+@inject ISnackbar Snackbar
+<InputFile OnChange="FileUploaded" accept=".jpg,.jpeg"></InputFile>
+
+@code {
+    public async Task FileUploaded(InputFileChangeEventArgs e)
+    {
+        var browserFile = e.File;
+
+        if (browserFile != null)
+        {
+            try
+            {
+                MemoryStream ms = new MemoryStream();
+                await e.File.OpenReadStream().CopyToAsync(ms);
+                var bytes = ms.ToArray();
+
+                await EmployeeService.UploadEmployeePhoto(1, bytes);
+            }
+            catch (Exception ex)
+            {
+                Snackbar.Add(ex.Message, Severity.Error);
+            }
+        }
+    }
+}

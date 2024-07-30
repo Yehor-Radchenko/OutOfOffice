@@ -10,6 +10,8 @@ using OutOfOffice.DAL.Context;
 using OutOfOffice.DAL.Models;
 using OutOfOffice.BLL.Services.IService;
 using OutOfOffice.Common.ViewModels.AbsenceReason;
+using OutOfOffice.Common.ViewModels.Project;
+using OutOfOffice.BLL.Exceptions;
 
 namespace OutOfOffice.BLL.Services;
 
@@ -28,21 +30,18 @@ public class EmployeeService : IEmployeeService
     {
         ArgumentNullException.ThrowIfNull(dto);
 
-        // Check if employee with the same email already exists
         var existingEmployee = await _userManager.FindByEmailAsync(dto.Email);
         if (existingEmployee != null)
         {
             throw new ConflictException($"Employee with email '{dto.Email}' already exists.");
         }
 
-        // Upload photo if provided
         int photoId = 0;
-        if (dto.Photo is not null && dto.Photo.Length > 0)
+        if (dto.PhotoBase64 is not null && dto.PhotoBase64.Length > 0)
         {
-            photoId = await UploadPhotoAsync(dto.Photo);
+            photoId = await UploadPhotoAsync(dto.PhotoBase64);
         }
 
-        // Create Employee entity
         var employeeModel = new Employee
         {
             UserName = dto.Email,
@@ -78,19 +77,32 @@ public class EmployeeService : IEmployeeService
     }
 
 
-    public async Task<int> UploadPhotoAsync(IFormFile formFile)
+    public async Task<int> UploadPhotoAsync(string base64)
     {
-        using (var memoryStream = new MemoryStream())
+        Photo photoModel = new Photo { Base64Data = base64 };
+        await _context.Photos.AddAsync(photoModel);
+        await _context.SaveChangesAsync();
+        
+        return photoModel.Id;
+    }
+
+    public async Task<bool> UploadPhotoToEmployeeAsync(int employeeId, string base64)
+    {
+        var employee = await _context.Employees.FirstOrDefaultAsync(e => e.Id == employeeId);
+
+        if (employee == null)
         {
-            await formFile.CopyToAsync(memoryStream);
-            byte[] photoBytes = memoryStream.ToArray();
-
-            Photo photoModel = new Photo { Base64Data = photoBytes };
-            await _context.Photos.AddAsync(photoModel);
-            await _context.SaveChangesAsync();
-
-            return photoModel.Id;
+            throw new KeyNotFoundException($"Employee with Id {employeeId} not found.");
         }
+
+        Photo photoModel = new Photo { Base64Data = base64 };
+        await _context.Photos.AddAsync(photoModel);
+        await _context.SaveChangesAsync();
+
+        employee.PhotoId = photoModel.Id;
+        await _context.SaveChangesAsync();
+
+        return true;
     }
 
     public async Task<bool> ChangeStatusAsync(int id, EmployeeStatus expectedEmployeeStatus)
@@ -140,6 +152,7 @@ public class EmployeeService : IEmployeeService
         var employeeInfo = await _context.Employees
             .Include(e => e.EmployeePartner)
             .Include(e => e.Projects)
+                .ThenInclude(pr => pr.ProjectManager)
             .Include(e => e.LeaveRequests)
                 .ThenInclude(lr => lr.ApprovalRequest)
             .Include(e => e.LeaveRequests)
@@ -155,7 +168,7 @@ public class EmployeeService : IEmployeeService
                 Subdivision = e.Subdivision.Name,
                 Status = e.Status.ToString(),
                 OutOfOfficeBalance = e.OutOfOfficeBalance,
-                Photo = e.Photo != null ? e.Photo.Base64Data : null,
+                PhotoBase64 = e.Photo != null ? e.Photo.Base64Data : null,
 
                 EmployeePartnerInfo = e.EmployeePartner != null ? new BriefEmployeeViewModel
                 {
@@ -189,7 +202,16 @@ public class EmployeeService : IEmployeeService
                         ApproveStatus = lr.ApprovalRequest != null ? lr.ApprovalRequest.Status.ToString() : "No ApprovalRequest info",
                     }).ToList(),
 
-                ProjectIds = e.Projects.Select(p => p.Id).ToList()
+                Projects = e.Projects.Select(pr => new BriefProjectViewModel()
+                {
+                    Id = pr.Id,
+                    ProjectManager = new BriefEmployeeViewModel
+                    {
+                        Id = pr.ProjectManager.Id,
+                        FullName = pr.ProjectManager.FullName,
+                    },
+                    Comment = pr.Comment,
+                }).ToList()
             })
             .FirstOrDefaultAsync();
 
@@ -246,15 +268,33 @@ public class EmployeeService : IEmployeeService
         employee.EmployeePartnerId = expectedEntityValues.EmployeePartnerId;
         employee.OutOfOfficeBalance = expectedEntityValues.OutOfOfficeBalance;
 
-        if (expectedEntityValues.Photo != null)
+        if (expectedEntityValues.PhotoBase64 != null)
         {
-            var newPhotoId = await UploadPhotoAsync(expectedEntityValues.Photo);
+            var newPhotoId = await UploadPhotoAsync(expectedEntityValues.PhotoBase64);
             employee.PhotoId = newPhotoId;
         }
 
         _context.Employees.Update(employee);
         await _context.SaveChangesAsync();
 
+        return true;
+    }
+
+    public async Task<bool> RemovePhotoAsync(int employeeId)
+    {
+        var employee = await _context.Employees
+            .Include(e => e.Photo)
+            .FirstOrDefaultAsync(e => e.Id == employeeId);
+
+        ArgumentNullException.ThrowIfNull(nameof(employee));
+
+        if (employee.Photo is null)
+        {
+            throw new PhotoNotFoundException("There is no photo found to delete.");
+        }
+
+        _context.Photos.Remove(employee.Photo);
+        await _context.SaveChangesAsync();
         return true;
     }
 }

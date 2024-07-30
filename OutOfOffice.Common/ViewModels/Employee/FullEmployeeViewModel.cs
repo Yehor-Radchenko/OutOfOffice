@@ -1,4 +1,5 @@
 ﻿using OutOfOffice.Common.ViewModels.LeaveRequest;
+using OutOfOffice.Common.ViewModels.Project;
 
 namespace OutOfOffice.Common.ViewModels.Employee
 {
@@ -22,8 +23,8 @@ namespace OutOfOffice.Common.ViewModels.Employee
 
         public IEnumerable<EmployeeLeaveRequestViewModel>? LeaveRequests { get; set; }
 
-        public IEnumerable<int>? ProjectIds { get; set; }
+        public IEnumerable<BriefProjectViewModel>? Projects { get; set; }
 
-        public byte[] Photo { get; set; }
+        public string? PhotoBase64 { get; set; }
     }
 }

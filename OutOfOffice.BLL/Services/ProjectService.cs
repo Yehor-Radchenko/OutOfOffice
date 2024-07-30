@@ -20,13 +20,14 @@ public class ProjectService
     public async Task<List<TableProjectViewModel>> GetAllProjectsAsync()
     {
         var projects = await _context.Projects
+            .Include(pr => pr.ProjectManager)
             .Select(p => new TableProjectViewModel
             {
                 Id = p.Id,
                 ProjectType = p.ProjectType.ToString(),
                 StartDate = p.StartDate,
                 EndDate = p.EndDate,
-                ProjectManagerId = p.ProjectManagerId,
+                ProjectManager = new BriefEmployeeViewModel { Id = p.ProjectManager.Id, FullName = p.ProjectManager.FullName },
                 Comment = p.Comment,
                 Status = p.Status.ToString()
             })

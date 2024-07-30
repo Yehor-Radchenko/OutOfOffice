@@ -7,6 +7,6 @@ namespace OutOfOffice.DAL.Models
         public int Id { get; set; }
 
         [Required]
-        public byte[] Base64Data { get; set; } = null!;
+        public string Base64Data { get; set; } = null!;
     }
 }

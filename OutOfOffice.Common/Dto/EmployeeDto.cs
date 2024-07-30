@@ -1,5 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using System.ComponentModel.DataAnnotations;
+﻿using System.ComponentModel.DataAnnotations;
 
 namespace OutOfOffice.Common.Dto
 {
@@ -27,6 +26,6 @@ namespace OutOfOffice.Common.Dto
         [Required(ErrorMessage = "Balance is required.")]
         public int OutOfOfficeBalance { get; set; }
 
-        public IFormFile? Photo { get; set; }
+        public string? PhotoBase64 { get; set; }
     }
 }

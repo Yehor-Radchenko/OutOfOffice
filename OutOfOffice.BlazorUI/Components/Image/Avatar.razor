@@ -3,7 +3,7 @@
 
 @code {
     [Parameter]
-    public byte[] Photo { get; set; }
+    public string PhotoBase64 { get; set; }
 
-    public string ImageSrc => $"data:image/jpeg;base64,{Convert.ToBase64String(Photo)}";
+    public string ImageSrc => $"data:image/jpeg;base64,{PhotoBase64}";
 }

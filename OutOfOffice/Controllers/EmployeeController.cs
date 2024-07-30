@@ -16,8 +16,8 @@ namespace OutOfOffice.Controllers;
 public class EmployeeController : ControllerBase
 {
     private readonly EmployeeService _employeeService;
-    
-    public EmployeeController (EmployeeService employeeService, UserManager<Employee> userManager)
+
+    public EmployeeController(EmployeeService employeeService, UserManager<Employee> userManager)
     {
         _employeeService = employeeService;
     }
@@ -26,7 +26,7 @@ public class EmployeeController : ControllerBase
     [Authorize(Roles = "HRManager,ProjectManager,Admin")]
     public async Task<IActionResult> GetTableViewModels(string? search)
     {
-        var query = new List<TableEmployeeViewModel>();
+        List<TableEmployeeViewModel> query;
 
         if (!string.IsNullOrWhiteSpace(search))
         {
@@ -106,6 +106,36 @@ public class EmployeeController : ControllerBase
         else
         {
             return BadRequest(ModelState);
+        }
+    }
+
+    [HttpPut("photo/remove")]
+    [Authorize]
+    public async Task<IActionResult> RemovePhotoAsync(int employeeId)
+    {
+        try
+        {
+            await _employeeService.RemovePhotoAsync(employeeId);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
+        }
+    }
+
+    [HttpPut("photo/upload{employeeId}")]
+    [Authorize]
+    public async Task<IActionResult> UploadPhotoToEmployeeAsync(int employeeId, [FromBody] string photoBase64)
+    {
+        try
+        {
+            await _employeeService.UploadPhotoToEmployeeAsync(employeeId, photoBase64);
+            return Ok();
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex);
         }
     }
 }

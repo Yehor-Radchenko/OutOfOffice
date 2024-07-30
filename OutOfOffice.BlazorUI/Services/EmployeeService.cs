@@ -31,7 +31,7 @@ public class EmployeeService : IEmployeeService
         return await _httpClientFactory.CreateClient("API").GetFromJsonAsync<FullEmployeeViewModel>($"api/employee/{id}");
     }
 
-    public async Task<FullEmployeeViewModel?> GetFullInfoAboutAuthenticatedEmployeeAsync()
+    public async Task<FullEmployeeViewModel> GetFullInfoAboutAuthenticatedEmployeeAsync()
     {
         try
         {
@@ -65,5 +65,19 @@ public class EmployeeService : IEmployeeService
         var response = await _httpClientFactory.CreateClient("API").PutAsJsonAsync($"api/employee/changeStatus/{id}", status);
         response.EnsureSuccessStatusCode();
         return await response.Content.ReadFromJsonAsync<int>();
+    }
+
+    public async Task RemoveEmployeePhoto(int employeeId)
+    {
+        var response = await _httpClientFactory.CreateClient("API").PutAsJsonAsync($"api/employee/photo/remove", employeeId);
+        response.EnsureSuccessStatusCode();
+    }
+
+    public async Task UploadEmployeePhoto(int employeeId, byte[] photoBytes)
+    {
+        var photoBase64 = Convert.ToBase64String(photoBytes);
+
+        var response = await _httpClientFactory.CreateClient("API").PutAsJsonAsync($"api/employee/photo/upload?employeeId={employeeId}", photoBase64);
+        response.EnsureSuccessStatusCode();
     }
 }

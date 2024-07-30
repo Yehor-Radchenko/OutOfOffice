@@ -68,7 +68,8 @@ namespace OutOfOffice.DAL.Seed
                 for (int i = 5, j = 0; i < employees.Length && j < imageFilePaths.Length; i++, j++)
                 {
                     byte[] imageBytes = await File.ReadAllBytesAsync(imageFilePaths[j]);
-                    employees[i].Photo = new Photo { Base64Data = imageBytes };
+                    var base64 = Convert.ToBase64String(imageBytes);
+                    employees[i].Photo = new Photo { Base64Data = base64 };
                 }
 
                 foreach (var employee in employees)
