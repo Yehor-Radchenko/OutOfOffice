@@ -1,179 +1,32 @@
 ﻿@page "/profile"
-@inject IEmployeeService EmployeeService
-@inject ILocalStorageService LocalStorageService
-
-@using Blazored.LocalStorage
-@using OutOfOffice.BlazorUI.Components.Image
-@using OutOfOffice.BlazorUI.Components.UploadFile
-@using OutOfOffice.BlazorUI.Services
+@using OutOfOffice.BlazorUI.Components.Profile
 @using OutOfOffice.BlazorUI.Services.Contracts
 @using OutOfOffice.Common.ViewModels.Employee
-@using System.Net.Http.Headers
-@using OutOfOffice.Common.ViewModels.LeaveRequest
-@using OutOfOffice.Common.ViewModels.Project
+@inject IEmployeeService EmployeeService
 
 <MudGrid>
+    <MudItem xs="12" md="4">
+        <ProfilePhoto ViewModel="ViewModel" />
+    </MudItem>
+    <MudItem xs="12" md="8">
+        <ProfileDetails ViewModel="ViewModel" />
+    </MudItem>
     <MudItem xs="12">
-        <MudCard Style="padding-top: 20px; padding-bottom: 20px">
-            <MudGrid>
-                <MudItem xs="12" md="4" class="profile-photo" style="text-align: center;">
-                    <div>
-                        @if (ViewModel is not null)
-                        {
-                            @if (ViewModel?.PhotoBase64 != null && ViewModel.PhotoBase64.Length > 0)
-                            {
-                                <Avatar PhotoBase64="@(ViewModel.PhotoBase64)" />
-                                <PhotoActions UserId="ViewModel.Id" UserHasPhoto="true"/>
-                            }
-                            else
-                            {
-                                <img src="images/default_profile_image.jpg" alt="Default Profile Photo" class="avatar-image-profile" />
-                                <PhotoActions UserId="ViewModel.Id" UserHasPhoto="false" />
-                            }
-                        }
-                        <MudText Typo="Typo.h5">@ViewModel?.FullName</MudText>
-                    </div>
-                </MudItem>
-                <MudItem xs="12" md="8">
-                    <MudCardContent>
-                        <MudGrid>
-                            <MudItem xs="4"><MudText><strong>Position:</strong></MudText></MudItem>
-                            <MudItem xs="8"><MudText>@ViewModel?.Position</MudText></MudItem>
-                            <MudItem xs="4"><MudText><strong>User Id:</strong></MudText></MudItem>
-                            <MudItem xs="8"><MudText>@ViewModel?.Id</MudText></MudItem>
-                            <MudItem xs="4"><MudText><strong>Subdivision:</strong></MudText></MudItem>
-                            <MudItem xs="8"><MudText>@ViewModel?.Subdivision</MudText></MudItem>
-                            <MudItem xs="4"><MudText><strong>Status:</strong></MudText></MudItem>
-                            <MudItem xs="8"><MudText>@ViewModel?.Status</MudText></MudItem>
-                            <MudItem xs="4"><MudText><strong>Out of Office Balance:</strong></MudText></MudItem>
-                            <MudItem xs="8"><MudText>@ViewModel?.OutOfOfficeBalance</MudText></MudItem>
-                            @if (ViewModel?.EmployeePartnerInfo != null)
-                            {
-                                <MudItem xs="4"><MudText><strong>Partner:</strong></MudText></MudItem>
-                                <MudItem xs="8"><MudText>@ViewModel.EmployeePartnerInfo.FullName</MudText></MudItem>
-                            }
-                        </MudGrid>
-                    </MudCardContent>
-                </MudItem>
-            </MudGrid>
-        </MudCard>
+        <ProjectsTable ViewModel="ViewModel" />
     </MudItem>
-    <MudItem xs="12" md="6">
-        @if (ViewModel?.Projects != null && ViewModel.Projects.Any())
-        {
-            <MudTable Items="@ViewModel.Projects" Dense="true" Hover="true" SortLabel="Sort By">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">My projects</MudText>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<BriefProjectViewModel, object>(x=>x.Id)">Project Id</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<BriefProjectViewModel, object>(x=>x.ProjectManager.FullName)">Project Manager</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<BriefProjectViewModel, object>(x=>x.Comment)">Comment</MudTableSortLabel></MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Id">@context.Id</MudTd>
-                    <MudTd DataLabel="Project Manager">@context.ProjectManager.FullName</MudTd>
-                    <MudTd DataLabel="Comment">@context.Comment</MudTd>
-                </RowTemplate>
-            </MudTable>
-        }
-        else
-        {
-            <MudCard>
-                <MudCardContent>
-                    <MudText Typo="Typo.h6" Style="margin-bottom: 10px;">My projects</MudText>
-                    <MudText>There are no projects you participating yet.</MudText>
-                    <MudText>Contact your Partner if you think some mistake occured.</MudText>
-                </MudCardContent>
-            </MudCard>
-        }
+    <MudItem xs="12">
+        <SubordinatesTable ViewModel="ViewModel" />
     </MudItem>
-    <MudItem xs="12" md="6">
-        @if (ViewModel?.SubordinateEmployees != null && ViewModel.SubordinateEmployees.Any())
-        {
-            <MudTable Items="@ViewModel.SubordinateEmployees" Dense="true" Hover="true" SortLabel="Sort By">
-                <ToolBarContent>
-                    <MudText Typo="Typo.h6">Subordinate Employees</MudText>
-                </ToolBarContent>
-                <HeaderContent>
-                    <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<BriefEmployeeViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
-                    <MudTh><MudTableSortLabel SortBy="new Func<BriefEmployeeViewModel, object>(x=>x.FullName)">Full name</MudTableSortLabel></MudTh>
-                </HeaderContent>
-                <RowTemplate>
-                    <MudTd DataLabel="Id">@context.Id</MudTd>
-                    <MudTd DataLabel="Full name">@context.FullName</MudTd>
-                </RowTemplate>
-            </MudTable>
-        }
+    <MudItem xs="12">
+        <LeaveRequestTable ViewModel="ViewModel" />
     </MudItem>
 </MudGrid>
 
-<div class="profile-tables" style="margin-top: 20px;">
-    @if (ViewModel?.LeaveRequests != null && ViewModel.LeaveRequests.Any())
-    {
-        <MudTable Items="@ViewModel.LeaveRequests" Hover="true" SortLabel="Sort By" @bind-SelectedItem="selectedItem">
-            <ToolBarContent>
-                <MudText Typo="Typo.h6">My leave requests</MudText>
-            </ToolBarContent>
-            <HeaderContent>
-                <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.AbsenceReason.ReasonTitle)">Absence reason</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Comment)">Comment</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.StartDate)">Start date</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.EndDate)">End date</MudTableSortLabel></MudTh>
-                <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Status)">Status</MudTableSortLabel></MudTh>
-            </HeaderContent>
-            <RowTemplate>
-                <MudTd DataLabel="Id">@context.Id</MudTd>
-                <MudTd DataLabel="Absence reason">@context.AbsenceReason.ReasonTitle</MudTd>
-                <MudTd DataLabel="Comment">@context.Comment</MudTd>
-                <MudTd DataLabel="Start date">@context.StartDate.Value.ToShortDateString()</MudTd>
-                <MudTd DataLabel="End date">@context.EndDate.Value.ToShortDateString()</MudTd>
-                <MudTd DataLabel="Status">
-                    <span class="status-frame @GetStatusCssClass(context.Status)">@context.Status</span>
-                </MudTd>
-            </RowTemplate>
-        </MudTable>
-    }
-    else
-    {
-        <MudCard>
-            <MudCardContent>
-                <MudText Typo="Typo.h6" Style="margin-bottom: 10px;">My leave requests</MudText>
-                <MudText>No leave requests found for your profile.</MudText>
-                <MudText>Contact your Partner if you think some mistake occured.</MudText>
-            </MudCardContent>
-        </MudCard>
-    }
-</div>
-
-@if (ViewModel == null)
-{
-    <p>Loading...</p>
-}
-
 @code {
-    [Parameter]
-    public FullEmployeeViewModel ViewModel { get; set; } = null!;
-    public EmployeeLeaveRequestViewModel selectedItem = new EmployeeLeaveRequestViewModel();
+    private FullEmployeeViewModel ViewModel { get; set; } = new FullEmployeeViewModel();
 
     protected override async Task OnInitializedAsync()
     {
-        string? authToken = await LocalStorageService.GetItemAsStringAsync("token");
         ViewModel = await EmployeeService.GetFullInfoAboutAuthenticatedEmployeeAsync();
-    }
-
-    private string GetStatusCssClass(string approveStatus)
-    {
-        return approveStatus switch
-        {
-            "New" => "new-status",
-            "Pending" => "pending-status",
-            "Submitted" => "submitted-status",
-            "Canceled" => "canceled-status",
-            "Approved" => "approved-status",
-            "Rejected" => "rejected-status",
-            _ => string.Empty,
-        };
     }
 }

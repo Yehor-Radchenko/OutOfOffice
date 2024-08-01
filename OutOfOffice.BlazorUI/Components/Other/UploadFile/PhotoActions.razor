@@ -1,4 +1,4 @@
-﻿@using OutOfOffice.BlazorUI.Components.Dialogs
+﻿@using OutOfOffice.BlazorUI.Components.Other.Dialogs
 @using OutOfOffice.BlazorUI.Services.Contracts
 @inject IEmployeeService EmployeeService
 @inject ISnackbar Snackbar
@@ -18,8 +18,12 @@
 @code {
     [Parameter, EditorRequired]
     public int UserId { get; set; }
+
     [Parameter, EditorRequired]
     public bool UserHasPhoto { get; set; }
+
+    [Parameter]
+    public EventCallback OnPhotoUpdated { get; set; }
 
     private async Task UploadPhoto(IBrowserFile browserFile)
     {
@@ -28,22 +32,26 @@
             try
             {
                 var format = "image/jpeg";
-                var resizedPhoto = await browserFile.RequestImageFileAsync(format, 200, 200);
+                var resizedPhoto = await browserFile.RequestImageFileAsync(format, 1000, 1000);
 
                 if (UserHasPhoto)
                 {
                     var dialog = DialogService.Show<ConfirmRemovePhotoDialog>();
-                    if (!dialog.Result.IsCanceled)
+                    var result = await dialog.Result;
+
+                    if (!result.Canceled)
                     {
                         await EmployeeService.UploadEmployeePhoto(UserId, resizedPhoto);
+                        Snackbar.Add("Photo uploaded successfully.", Severity.Success);
+                        await OnPhotoUpdated.InvokeAsync();
                     }
                 }
                 else
+                {
                     await EmployeeService.UploadEmployeePhoto(UserId, resizedPhoto);
-
-                Snackbar.Add("Photo uploaded successfully.", Severity.Success);
-
-                NavigationManager.Refresh();
+                    Snackbar.Add("Photo uploaded successfully.", Severity.Success);
+                    await OnPhotoUpdated.InvokeAsync();
+                }
             }
             catch (Exception ex)
             {
@@ -59,16 +67,19 @@
             if (UserHasPhoto)
             {
                 var dialog = DialogService.Show<ConfirmReplacePhotoDialog>();
-                if (!dialog.Result.IsCanceled)
+                var result = await dialog.Result;
+
+                if (!result.Canceled)
                 {
                     await EmployeeService.RemoveEmployeePhoto(UserId);
-                    StateHasChanged();
-                    Snackbar.Add("Photo been removed.", Severity.Success);
-                    NavigationManager.Refresh();
+                    Snackbar.Add("Photo removed.", Severity.Success);
+                    await OnPhotoUpdated.InvokeAsync();
                 }
             }
             else
-                Snackbar.Add("User have no photo to remove", Severity.Error);
+            {
+                Snackbar.Add("User has no photo to remove", Severity.Error);
+            }
         }
         catch (Exception ex)
         {

@@ -1,0 +1,22 @@
+﻿@using OutOfOffice.Common.ViewModels.Employee
+@if (ViewModel?.SubordinateEmployees != null && ViewModel.SubordinateEmployees.Any())
+{
+    <MudTable Items="@ViewModel.SubordinateEmployees" Dense="true" Hover="true" SortLabel="Sort By">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">Subordinate Employees</MudText>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<BriefEmployeeViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BriefEmployeeViewModel, object>(x=>x.FullName)">Full name</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Full name">@context.FullName</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+
+@code {
+    [Parameter]
+    public FullEmployeeViewModel ViewModel { get; set; } = null!;
+}

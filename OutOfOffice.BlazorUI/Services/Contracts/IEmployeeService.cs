@@ -13,6 +13,7 @@ namespace OutOfOffice.BlazorUI.Services.Contracts
         Task<FullEmployeeViewModel> GetFullInfoAsync(int id);
         Task<List<TableEmployeeViewModel>> GetTableDataAsync(string? search = null);
         Task<int> UpdateEmployeeAsync(int id, EmployeeDto dto);
+        Task<string> GetEmployeePhotoAsBase64Async(int employeeId);
         Task RemoveEmployeePhoto(int employeeId);
         Task UploadEmployeePhoto(int employeeId, IBrowserFile file);
     }

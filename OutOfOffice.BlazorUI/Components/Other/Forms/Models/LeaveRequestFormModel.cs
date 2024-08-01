@@ -1,7 +1,7 @@
 ﻿using MudBlazor;
 using System.ComponentModel.DataAnnotations;
 
-namespace OutOfOffice.BlazorUI.Pages.LeaveRequest.Models
+namespace OutOfOffice.BlazorUI.Components.Other.Forms.Models
 {
     public class LeaveRequestFormModel
     {

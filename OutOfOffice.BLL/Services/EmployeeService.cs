@@ -297,4 +297,15 @@ public class EmployeeService : IEmployeeService
         await _context.SaveChangesAsync();
         return true;
     }
+
+    public async Task<string> GetPhotoByIdAsync(int userId)
+    {
+        var photo = await _context.Employees
+            .Include (e => e.Photo)
+            .Where(e => e.Id == userId)
+            .Select(e => e.Photo.Base64Data)
+            .FirstOrDefaultAsync();
+
+        return photo ?? string.Empty;
+    }
 }

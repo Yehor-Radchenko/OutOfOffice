@@ -1,0 +1,23 @@
+﻿@using OutOfOffice.Common.ViewModels.Employee
+<MudGrid>
+    <MudItem xs="4"><MudText><strong>Position:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@ViewModel?.Position</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>User Id:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@ViewModel?.Id</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>Subdivision:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@ViewModel?.Subdivision</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>Status:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@ViewModel?.Status</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>Out of Office Balance:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@ViewModel?.OutOfOfficeBalance</MudText></MudItem>
+    @if (ViewModel?.EmployeePartnerInfo != null)
+    {
+        <MudItem xs="4"><MudText><strong>Partner:</strong></MudText></MudItem>
+        <MudItem xs="8"><MudText>@ViewModel.EmployeePartnerInfo.FullName</MudText></MudItem>
+    }
+</MudGrid>
+
+@code {
+    [Parameter]
+    public FullEmployeeViewModel ViewModel { get; set; } = null!;
+}

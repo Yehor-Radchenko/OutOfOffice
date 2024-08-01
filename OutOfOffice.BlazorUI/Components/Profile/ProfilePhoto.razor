@@ -1,0 +1,31 @@
+﻿@using OutOfOffice.BlazorUI.Components.Other.UploadFile
+@using OutOfOffice.BlazorUI.Services.Contracts
+@using OutOfOffice.Common.ViewModels.Employee
+@inject IEmployeeService EmployeeService
+
+<div style="text-align: center;">
+    @if (PhotoBase64 != null && PhotoBase64.Length > 0)
+    {
+        <Avatar PhotoBase64="@(PhotoBase64)" />
+        <PhotoActions UserId="ViewModel.Id" UserHasPhoto="true" OnPhotoUpdated="HandlePhotoUpdated" />
+    }
+    else
+    {
+        <img src="images/default_profile_image.jpg" alt="Default Profile Photo" class="avatar-image-profile" />
+        <PhotoActions UserId="ViewModel.Id" UserHasPhoto="false" OnPhotoUpdated="HandlePhotoUpdated" />
+    }
+    <MudText Typo="Typo.h5">@ViewModel?.FullName</MudText>
+</div>
+
+@code {
+    [Parameter]
+    public FullEmployeeViewModel ViewModel { get; set; } = null!;
+
+    private string PhotoBase64 => ViewModel?.PhotoBase64;
+
+    private async Task HandlePhotoUpdated()
+    {
+        ViewModel.PhotoBase64 = await EmployeeService.GetEmployeePhotoAsBase64Async(ViewModel.Id);
+        StateHasChanged();
+    }
+}

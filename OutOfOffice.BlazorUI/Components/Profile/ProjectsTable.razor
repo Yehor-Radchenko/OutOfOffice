@@ -1,0 +1,35 @@
+﻿@using OutOfOffice.Common.ViewModels.Employee
+@using OutOfOffice.Common.ViewModels.Project
+@if (ViewModel?.Projects != null && ViewModel.Projects.Any())
+{
+    <MudTable Items="@ViewModel.Projects" Dense="true" Hover="true" SortLabel="Sort By">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">My projects</MudText>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<BriefProjectViewModel, object>(x=>x.Id)">Project Id</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BriefProjectViewModel, object>(x=>x.ProjectManager.FullName)">Project Manager</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<BriefProjectViewModel, object>(x=>x.Comment)">Comment</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Project Manager">@context.ProjectManager.FullName</MudTd>
+            <MudTd DataLabel="Comment">@context.Comment</MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+else
+{
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Style="margin-bottom: 10px;">My projects</MudText>
+            <MudText>There are no projects you participating yet.</MudText>
+            <MudText>Contact your Partner if you think some mistake occurred.</MudText>
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    [Parameter]
+    public FullEmployeeViewModel ViewModel { get; set; } = null!;
+}

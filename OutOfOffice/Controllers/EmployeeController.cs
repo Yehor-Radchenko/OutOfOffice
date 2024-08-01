@@ -109,6 +109,21 @@ public class EmployeeController : ControllerBase
         }
     }
 
+    [HttpGet("photo")]
+    [Authorize]
+    public async Task<IActionResult> GetPhotoAsync([FromQuery] int employeeId)
+    {
+        try
+        {
+            var photo = await _employeeService.GetPhotoByIdAsync(employeeId);
+            return Ok(photo);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(ex.Message);
+        }
+    }
+
     [HttpPut("photo/remove")]
     [Authorize]
     public async Task<IActionResult> RemovePhotoAsync([FromQuery] int employeeId)

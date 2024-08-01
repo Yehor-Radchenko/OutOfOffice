@@ -82,6 +82,14 @@ public class EmployeeService : IEmployeeService
         response.EnsureSuccessStatusCode();
     }
 
+    public async Task<string> GetEmployeePhotoAsBase64Async(int employeeId)
+    {
+        var response = await _httpClientFactory.CreateClient("API").GetAsync($"api/employee/photo?employeeId={employeeId}");
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadAsStringAsync();
+    }
+
     private static async Task<string> GetBase64FromIBrowserFile(IBrowserFile file)
     {
         var path = Path.Combine(Path.GetTempPath(), Guid.NewGuid().ToString());

@@ -1,0 +1,59 @@
+﻿@using OutOfOffice.Common.ViewModels.Employee
+@using OutOfOffice.Common.ViewModels.LeaveRequest
+@if (ViewModel?.LeaveRequests != null && ViewModel.LeaveRequests.Any())
+{
+    <MudTable Items="@ViewModel.LeaveRequests" Hover="true" SortLabel="Sort By" @bind-SelectedItem="selectedItem">
+        <ToolBarContent>
+            <MudText Typo="Typo.h6">My leave requests</MudText>
+        </ToolBarContent>
+        <HeaderContent>
+            <MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.AbsenceReason.ReasonTitle)">Absence reason</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Comment)">Comment</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.StartDate)">Start date</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.EndDate)">End date</MudTableSortLabel></MudTh>
+            <MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Status)">Status</MudTableSortLabel></MudTh>
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="Id">@context.Id</MudTd>
+            <MudTd DataLabel="Absence reason">@context.AbsenceReason.ReasonTitle</MudTd>
+            <MudTd DataLabel="Comment">@context.Comment</MudTd>
+            <MudTd DataLabel="Start date">@context.StartDate.Value.ToShortDateString()</MudTd>
+            <MudTd DataLabel="End date">@context.EndDate.Value.ToShortDateString()</MudTd>
+            <MudTd DataLabel="Status">
+                <span class="status-frame @GetStatusCssClass(context.Status)">@context.Status</span>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+}
+else
+{
+    <MudCard>
+        <MudCardContent>
+            <MudText Typo="Typo.h6" Style="margin-bottom: 10px;">My leave requests</MudText>
+            <MudText>No leave requests found for your profile.</MudText>
+            <MudText>Contact your Partner if you think some mistake occurred.</MudText>
+        </MudCardContent>
+    </MudCard>
+}
+
+@code {
+    [Parameter]
+    public FullEmployeeViewModel ViewModel { get; set; } = null!;
+
+    private EmployeeLeaveRequestViewModel selectedItem;
+
+    private string GetStatusCssClass(string status)
+    {
+        return status switch
+        {
+            "New" => "new-status",
+            "Pending" => "pending-status",
+            "Submitted" => "submitted-status",
+            "Canceled" => "canceled-status",
+            "Approved" => "approved-status",
+            "Rejected" => "rejected-status",
+            _ => string.Empty,
+        };
+    }
+}
