@@ -1,8 +1,9 @@
-﻿@using OutOfOffice.Common.ViewModels.Employee
+﻿@using OutOfOffice.BlazorUI.Components.Other
+@using OutOfOffice.Common.ViewModels.Employee
 @using OutOfOffice.Common.ViewModels.LeaveRequest
 @if (ViewModel?.LeaveRequests != null && ViewModel.LeaveRequests.Any())
 {
-    <MudTable Items="@ViewModel.LeaveRequests" Hover="true" SortLabel="Sort By" @bind-SelectedItem="selectedItem">
+    <MudTable Items="@ViewModel.LeaveRequests" SortLabel="Sort By">
         <ToolBarContent>
             <MudText Typo="Typo.h6">My leave requests</MudText>
         </ToolBarContent>
@@ -21,7 +22,7 @@
             <MudTd DataLabel="Start date">@context.StartDate.Value.ToShortDateString()</MudTd>
             <MudTd DataLabel="End date">@context.EndDate.Value.ToShortDateString()</MudTd>
             <MudTd DataLabel="Status">
-                <span class="status-frame @GetStatusCssClass(context.Status)">@context.Status</span>
+                <span class="status-frame @StatusCssHelper.GetStatusCssClass(context.Status)">@context.Status</span>
             </MudTd>
         </RowTemplate>
     </MudTable>
@@ -40,20 +41,4 @@ else
 @code {
     [Parameter]
     public FullEmployeeViewModel ViewModel { get; set; } = null!;
-
-    private EmployeeLeaveRequestViewModel selectedItem;
-
-    private string GetStatusCssClass(string status)
-    {
-        return status switch
-        {
-            "New" => "new-status",
-            "Pending" => "pending-status",
-            "Submitted" => "submitted-status",
-            "Canceled" => "canceled-status",
-            "Approved" => "approved-status",
-            "Rejected" => "rejected-status",
-            _ => string.Empty,
-        };
-    }
 }

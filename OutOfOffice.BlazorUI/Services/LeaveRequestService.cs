@@ -44,9 +44,11 @@ namespace OutOfOffice.BlazorUI.Services
             return leaveRequests;
         }
 
-        public Task<FullLeaveRequestViewModel> GetFullLeaveRequestViewModelAsync(int id)
+        public async Task<FullLeaveRequestViewModel> GetFullLeaveRequestViewModelAsync(int id)
         {
-            throw new NotImplementedException();
+            var response = await _httpClientFactory.CreateClient("API").GetAsync($"api/leaverequest/{id}");
+            var leaveRequests = await response.Content.ReadFromJsonAsync<FullLeaveRequestViewModel>();
+            return leaveRequests;
         }
 
         public async Task<IEnumerable<EmployeeLeaveRequestViewModel>> GetMyLeaveRequestsAsync(string? searchString = null)

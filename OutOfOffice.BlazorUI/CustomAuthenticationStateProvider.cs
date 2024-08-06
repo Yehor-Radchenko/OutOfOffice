@@ -1,7 +1,5 @@
 ﻿using Blazored.LocalStorage;
 using Microsoft.AspNetCore.Components.Authorization;
-using System.Net.Http;
-using System.Net.Http.Headers;
 using System.Security.Claims;
 using System.Text.Json;
 
@@ -54,17 +52,45 @@ namespace OutOfOffice.BlazorUI
                 var expTime = DateTimeOffset.FromUnixTimeSeconds(long.Parse(expClaim.Value));
                 return expTime < DateTimeOffset.UtcNow;
             }
-            return true; // If there's no expiration claim, consider the token as expired
+            return true;
         }
 
         public static IEnumerable<Claim> ParseClaimsFromJwt(string jwt)
         {
             ArgumentException.ThrowIfNullOrEmpty(jwt);
 
+            var claims = new List<Claim>();
+
             var payload = jwt.Split('.')[1];
             var jsonBytes = ParseBase64WithoutPadding(payload);
             var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
-            return keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString()));
+
+            ExtractRolesFromJWT(claims, keyValuePairs);
+
+            claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
+
+            return claims;
+        }
+
+        private static void ExtractRolesFromJWT(List<Claim> claims, Dictionary<string, object> keyValuePairs)
+        {
+            keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles);
+            if (roles != null)
+            {
+                var parsedRoles = roles.ToString().Trim().TrimStart('[').TrimEnd(']').Split(',');
+                if (parsedRoles.Length > 1)
+                {
+                    foreach (var parsedRole in parsedRoles)
+                    {
+                        claims.Add(new Claim(ClaimTypes.Role, parsedRole.Trim('"')));
+                    }
+                }
+                else
+                {
+                    claims.Add(new Claim(ClaimTypes.Role, parsedRoles[0]));
+                }
+                keyValuePairs.Remove(ClaimTypes.Role);
+            }
         }
 
         private static byte[] ParseBase64WithoutPadding(string base64)

@@ -1,6 +1,7 @@
 ﻿@inherits LayoutComponentBase
 @inject IAuthenticationService AuthenticationService
 @inject NavigationManager NavigationManager
+@using OutOfOffice.BlazorUI.Components
 @using OutOfOffice.BlazorUI.Services.Contracts
 
 <MudThemeProvider />
@@ -8,23 +9,30 @@
 <MudDialogProvider />
 <MudSnackbarProvider />
 
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
+<AuthorizeView>
+    <Authorized>
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
 
-    <main>
-        <div class="top-row px-4">
-            <a href="javascript:void(0);" @onclick="Logout" class="logout-link">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </a>
+            <main>
+                <div class="top-row px-4">
+                    <a href="javascript:void(0);" @onclick="Logout" class="logout-link">
+                        <i class="fas fa-sign-out-alt"></i> Logout
+                    </a>
+                </div>
+
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
         </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    </Authorized>
+    <NotAuthorized>
+        <OutOfOffice.BlazorUI.Components.Login.RedirectToLogin />
+    </NotAuthorized>
+</AuthorizeView>
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.

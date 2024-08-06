@@ -116,6 +116,7 @@ public class LeaveRequestService : IRequestService
     {
         var query = _context.LeaveRequests
             .Include(lr => lr.ApprovalRequest)
+            .Include(lr => lr.AbsenceReason)
             .AsQueryable();
 
         if (!string.IsNullOrEmpty(searchValue))
@@ -136,7 +137,11 @@ public class LeaveRequestService : IRequestService
             EndDate = leaveRequest.EndDate,
             Comment = leaveRequest.Comment,
             Status = leaveRequest.Status.ToString(),
-            AbsenceReason = leaveRequest.AbsenceReason.ReasonTitle,
+            AbsenceReason = new AbsenceReasonViewModel
+            {
+                Id = leaveRequest.AbsenceReason.Id,
+                ReasonTitle = leaveRequest.AbsenceReason.ReasonTitle,
+            },
             ApprovalRequestId = leaveRequest.ApprovalRequest?.Id ?? 0,
         }).ToList();
 

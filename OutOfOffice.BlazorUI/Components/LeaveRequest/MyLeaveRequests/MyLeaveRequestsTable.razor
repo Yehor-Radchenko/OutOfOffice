@@ -1,0 +1,266 @@
+﻿@using OutOfOffice.BlazorUI.Components.Other
+@using OutOfOffice.BlazorUI.Components.Other.Dialogs
+@using OutOfOffice.BlazorUI.Pages.LeaveRequest
+@using OutOfOffice.BlazorUI.Services.Contracts
+@using OutOfOffice.Common.Dto
+@using OutOfOffice.Common.Enums
+@using OutOfOffice.Common.ViewModels.AbsenceReason
+@using OutOfOffice.Common.ViewModels.LeaveRequest
+@inject ILeaveRequestService LeaveRequestService;
+@inject IAbsenceReasonService AbsenceReasonService
+@inject NavigationManager NavigationManager
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<MudTable Items="@requestsForCurrentEmployee" Hover="true" SortLabel="Sort By" Filter="new Func<EmployeeLeaveRequestViewModel,bool>(FilterFunc)"
+          CanCancelEdit="true" CommitEditTooltip="Commit Edit" CancelEditTooltip="Cancel Edit" 
+          RowEditPreview="OnRowEditModeInitialized" RowEditCancel="ResetItemToOriginalValues" RowEditCommit="ItemHasBeenCommitted" 
+          IsEditRowSwitchingBlocked="true" EditButtonPosition="TableEditButtonPosition.End" 
+          ApplyButtonPosition="TableApplyButtonPosition.End" EditTrigger="TableEditTrigger.EditButton" OnRowClick="@OnRowClickEventCallback">
+
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">My leave requests</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search (by Id or Comment)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    
+    <HeaderContent>
+        <MyLeaveRequestsHeaderContent />
+    </HeaderContent>
+
+   <RowTemplate>
+        <MyLeaveRequestsRowTemplate Context="context" IsEditing="isEditing" />
+   </RowTemplate>
+
+    <RowEditingTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="Absence reason">
+            <MudSelect @bind-Value="context.AbsenceReason.Id" Required Variant="Variant.Outlined" AnchorOrigin="Origin.BottomCenter">
+                @foreach (var reason in absenceReasons)
+                {
+                    <MudSelectItem Value="@reason.Id">@reason.ReasonTitle</MudSelectItem>
+                }
+            </MudSelect>
+        </MudTd>
+        <MudTd DataLabel="Comment">
+            <MudTextField @bind-Value="context.Comment" Required />
+        </MudTd>
+        <MudTd DataLabel="Start date">
+            <MudDatePicker @bind-Date="context.StartDate" Required PickerVariant="PickerVariant.Inline" Placeholder="Select date" />
+            @if (!string.IsNullOrEmpty(startDateValidationMessage))
+            {
+                <MudText Typo="Typo.caption" Color="Color.Error">@startDateValidationMessage</MudText>
+            }
+        </MudTd>
+        <MudTd DataLabel="End date">
+            <MudDatePicker @bind-Date="context.EndDate" Required PickerVariant="PickerVariant.Inline" Placeholder="Select date" />
+            @if (!string.IsNullOrEmpty(endDateValidationMessage))
+            {
+                <MudText Typo="Typo.caption" Color="Color.Error">@endDateValidationMessage</MudText>
+            }
+        </MudTd>
+        <MudTd DataLabel="Status">
+            @if (isLocalRequestStatusCanceled)
+            {
+                <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Primary" OnClick="DiscardCancelation">Discard</MudButton>
+            }
+            else
+            {
+                <MudButton ButtonType="ButtonType.Button" Variant="Variant.Filled" Color="Color.Error" OnClick="OpenCancelDialog" Disabled="@isRequestAlreadyCanceled">Cancel</MudButton>
+            }
+        </MudTd>
+        <MudTd DataLabel="Approve status">
+            <span class="status-frame @StatusCssHelper.GetStatusCssClass(context.ApproveStatus)">@context.ApproveStatus</span>
+        </MudTd>
+    </RowEditingTemplate>
+
+    <EditButtonContent Context="button">
+        <MudIconButton Size="@Size.Small" Icon="@Icons.Material.Outlined.Edit" Class="pa-0" OnClick="@button.ButtonAction" />
+    </EditButtonContent>
+</MudTable>
+
+<button class="fixed-button" @onclick="SendNewLeaveRequest">
+    <i class="fa fa-plus"></i>
+</button>
+
+@code {
+    private IEnumerable<EmployeeLeaveRequestViewModel> requestsForCurrentEmployee = new List<EmployeeLeaveRequestViewModel>();
+    private string searchString = "";
+    private bool _isAddOperationDialogOpen = false;
+    private EmployeeLeaveRequestViewModel modelBeforeEdit = null!;
+    private IEnumerable<AbsenceReasonViewModel> absenceReasons = new List<AbsenceReasonViewModel>();
+    private string startDateValidationMessage = string.Empty;
+    private string endDateValidationMessage = string.Empty;
+    private LeaveRequestDto commitUpdateModel = new LeaveRequestDto();
+    private bool isLocalRequestStatusCanceled = false;
+    private bool isRequestAlreadyCanceled = false;
+    private bool isEditing = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLeaveRequestsAsync();
+    }
+
+    private async Task LoadLeaveRequestsAsync()
+    {
+        requestsForCurrentEmployee = await LeaveRequestService.GetMyLeaveRequestsAsync(searchString);
+    }
+
+    private void SendNewLeaveRequest()
+    {
+        NavigationManager.NavigateTo("/leave-request/send");
+    }
+
+    private bool FilterFunc(EmployeeLeaveRequestViewModel element)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Comment.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private async void OnRowEditModeInitialized(object model)
+    {
+        isEditing = true;
+        isLocalRequestStatusCanceled = false;
+        isRequestAlreadyCanceled = false;
+        if (absenceReasons.Count() < 1)
+        {
+            absenceReasons = await AbsenceReasonService.GetAllAsync();
+        }
+
+        EmployeeLeaveRequestViewModel viewModel = (EmployeeLeaveRequestViewModel)model;
+
+        if (viewModel.Status == "Canceled")
+        {
+            isRequestAlreadyCanceled = true;
+            StateHasChanged();
+        }
+
+        BackupItem(viewModel);
+    }
+
+    private void BackupItem(EmployeeLeaveRequestViewModel tableItem)
+    {
+        modelBeforeEdit = new()
+        {
+            AbsenceReason = ((EmployeeLeaveRequestViewModel)tableItem).AbsenceReason,
+            StartDate = ((EmployeeLeaveRequestViewModel)tableItem).StartDate,
+            EndDate = ((EmployeeLeaveRequestViewModel)tableItem).EndDate,
+            Status = ((EmployeeLeaveRequestViewModel)tableItem).Status,
+            Comment = ((EmployeeLeaveRequestViewModel)tableItem).Comment
+        };
+    }
+
+    private void ResetItemToOriginalValues(object model)
+    {
+        isEditing = false;
+        EmployeeLeaveRequestViewModel viewModel = (EmployeeLeaveRequestViewModel)model;
+        viewModel.AbsenceReason = modelBeforeEdit.AbsenceReason;
+        viewModel.StartDate = modelBeforeEdit.StartDate;
+        viewModel.Status = modelBeforeEdit.Status;
+        viewModel.EndDate = modelBeforeEdit.EndDate;
+        viewModel.Comment = modelBeforeEdit.Comment;
+    }
+
+    private async void ItemHasBeenCommitted(object model)
+    {
+        isEditing = false;
+        EmployeeLeaveRequestViewModel viewModel = (EmployeeLeaveRequestViewModel)model;
+
+        if (AreDatesValid(viewModel.StartDate, viewModel.EndDate))
+        {
+            try
+            {
+                commitUpdateModel.AbsenceReasonId = viewModel.AbsenceReason.Id;
+                commitUpdateModel.Comment = viewModel.Comment;
+                commitUpdateModel.StartDate = (DateTime)viewModel.StartDate;
+                commitUpdateModel.EndDate = (DateTime)viewModel.EndDate;
+
+                if(!isLocalRequestStatusCanceled)
+                    commitUpdateModel.Status = (RequestStatus)Enum.Parse(typeof(RequestStatus), viewModel.Status);
+                else
+                    commitUpdateModel.Status = RequestStatus.Canceled;
+
+                await LeaveRequestService.UpdateAsync(viewModel.Id, commitUpdateModel);
+
+                Snackbar.Add("Leave request updated successfully!", Severity.Success);
+
+                await LoadLeaveRequestsAsync();
+                StateHasChanged();
+            }
+            catch (InvalidCastException)
+            {
+                Snackbar.Add("Cast exception occures. Contact to administrator.", Severity.Error);
+            }
+            catch (FormatException)
+            {
+                Snackbar.Add("Format exception occures.", Severity.Error);
+            }
+            catch (HttpRequestException ex)
+            {
+                Snackbar.Add($"Code: {ex.StatusCode} Message: {ex.Message}", Severity.Error);
+            }
+        }
+        else
+        {
+            Snackbar.Add("Validation issues. Try again.", Severity.Warning);
+        }
+    }
+
+    private bool AreDatesValid(DateTime? start, DateTime? end)
+    {
+        startDateValidationMessage = string.Empty;
+        endDateValidationMessage = string.Empty;
+
+        if (start > end)
+        {
+            startDateValidationMessage = "Start date cannot be after end date.";
+            endDateValidationMessage = "End date cannot be before start date.";
+            return false;
+        }
+
+        return true;
+    }
+
+    private async void OpenCancelDialog()
+    {
+        var dialog = DialogService.Show<CancelLeaveRequestDialog>("Confirm Cancellation");
+        var result = await dialog.Result;
+
+        if (!result.Canceled)
+        {
+            bool isConfirmed = (bool)result.Data!;
+            if (isConfirmed)
+            {
+                CancelLeaveRequest();
+            }
+        }
+    }
+
+    private void CancelLeaveRequest()
+    {
+        isLocalRequestStatusCanceled = true;
+        StateHasChanged();
+    }
+
+    private void DiscardCancelation()
+    {
+        isLocalRequestStatusCanceled = false;
+    }
+
+    private EventCallback<TableRowClickEventArgs<EmployeeLeaveRequestViewModel>> OnRowClickEventCallback
+        => EventCallback.Factory.Create<TableRowClickEventArgs<EmployeeLeaveRequestViewModel>>(this, OnRowClick);
+
+
+    private void OnRowClick(TableRowClickEventArgs<EmployeeLeaveRequestViewModel> e)
+    {
+        if (!isEditing && e.Item != null)
+        {
+            NavigationManager.NavigateTo($"/leave-requests/{e.Item.Id}");
+        }
+    }
+}

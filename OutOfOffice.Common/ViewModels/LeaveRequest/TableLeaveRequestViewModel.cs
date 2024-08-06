@@ -1,4 +1,6 @@
-﻿namespace OutOfOffice.Common.ViewModels.LeaveRequest
+﻿using OutOfOffice.Common.ViewModels.AbsenceReason;
+
+namespace OutOfOffice.Common.ViewModels.LeaveRequest
 {
     public class TableLeaveRequestViewModel
     {
@@ -14,7 +16,7 @@
 
         public string Status { get; set; } = null!;
 
-        public string AbsenceReason { get; set; } = null!;
+        public AbsenceReasonViewModel AbsenceReason { get; set; } = null!;
 
         public int ApprovalRequestId { get; set; }
     }

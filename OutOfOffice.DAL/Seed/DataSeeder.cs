@@ -75,7 +75,6 @@ namespace OutOfOffice.DAL.Seed
                 foreach (var employee in employees)
                 {
                     await userManager.CreateAsync(employee, "1234qwer");
-                    await userManager.AddToRoleAsync(employee, "Employee");
                 }
 
                 var adminEmployee = employees.FirstOrDefault();
@@ -84,6 +83,11 @@ namespace OutOfOffice.DAL.Seed
                 var hrManagerEmployee = employees[2];
                 hrManagerEmployee.EmployeePartner = adminEmployee;
                 await userManager.AddToRoleAsync(hrManagerEmployee, "HRManager");
+
+                for (int i = 1; i < employees.Length; i++)
+                {
+                    await userManager.AddToRoleAsync(employees[i], "Employee");
+                }
 
                 for (int i = 3; i < employees.Length; i++)
                 {

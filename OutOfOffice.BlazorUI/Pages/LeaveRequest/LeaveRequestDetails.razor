@@ -1,0 +1,73 @@
+﻿@page "/leave-requests/{Id:int}"
+@using OutOfOffice.BlazorUI.Components.Other
+@using OutOfOffice.BlazorUI.Services.Contracts
+@using OutOfOffice.Common.Enums
+@using OutOfOffice.Common.ViewModels.LeaveRequest
+@inject ILeaveRequestService LeaveRequestService
+
+<PageTitle>Details</PageTitle>
+
+<MudText Typo="Typo.h4" style="margin-bottom:15px;">Details</MudText>
+
+@if(viewModel is null)
+{
+    <p>Loading...</p>
+}
+
+<MudGrid>
+    <MudItem xs="4"><MudText><strong>Request Id:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@viewModel?.Id</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>Absence reason:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@viewModel?.AbsenceReason</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>Comment:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@viewModel?.Comment</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>Start date:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@viewModel?.StartDate.ToShortDateString()</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>End date:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@viewModel?.EndDate.ToShortDateString()</MudText></MudItem>
+    
+    <MudItem xs="4"><MudText><strong>Employee Id:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@viewModel?.Employee?.Id</MudText></MudItem>
+    <MudItem xs="4"><MudText><strong>Employee Name:</strong></MudText></MudItem>
+    <MudItem xs="8"><MudText>@viewModel?.Employee?.FullName</MudText></MudItem>
+
+    @if (viewModel?.ApprovalRequest != null)
+    {
+        <MudItem xs="4"><MudText><strong>Approval Id:</strong></MudText></MudItem>
+        <MudItem xs="8"><MudText>@viewModel.ApprovalRequest.Id</MudText></MudItem>
+        <MudItem xs="4"><MudText><strong>Approval Status:</strong></MudText></MudItem>
+        <MudItem xs="8">
+            <span class="status-frame @StatusCssHelper.GetStatusCssClass(viewModel.ApprovalRequest.Status)">@viewModel.ApprovalRequest.Status</span>
+        </MudItem>
+        <MudItem xs="4"><MudText><strong>Approved by:</strong></MudText></MudItem>
+        <MudItem xs="8"><MudText>@viewModel.ApprovalRequest.ApprovedBy.FullName</MudText></MudItem>
+    }
+    else
+    {
+        <MudItem xs="4"><MudText><strong>Approval status:</strong></MudText></MudItem>
+        <MudItem xs="8">
+            <span class="status-frame @StatusCssHelper.GetStatusCssClass(RequestStatus.Pending.ToString())">@RequestStatus.Pending.ToString()</span>
+        </MudItem>
+        <AuthorizeView Roles="HRManager, Admin, ProjectManager">
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Primary" OnClick="OnApproveRequestClick">Approve</MudButton>
+            <MudButton ButtonType="ButtonType.Submit" Color="Color.Default" OnClick="OnApproveRequestClick">Reject</MudButton>
+        </AuthorizeView>
+    }
+</MudGrid>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private FullLeaveRequestViewModel? viewModel;
+
+    protected override async Task OnInitializedAsync()
+    {
+        viewModel = await LeaveRequestService.GetFullLeaveRequestViewModelAsync(this.Id);
+    }
+
+    private async Task OnApproveRequestClick()
+    {
+        
+    }
+}

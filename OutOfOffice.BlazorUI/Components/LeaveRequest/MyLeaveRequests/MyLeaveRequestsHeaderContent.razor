@@ -1,0 +1,9 @@
+﻿@using OutOfOffice.Common.ViewModels.LeaveRequest
+
+<MudTh><MudTableSortLabel InitialDirection="SortDirection.Ascending" SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Id)">Id</MudTableSortLabel></MudTh>
+<MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.AbsenceReason.ReasonTitle)">Absence reason</MudTableSortLabel></MudTh>
+<MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Comment)">Comment</MudTableSortLabel></MudTh>
+<MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.StartDate)">Start date</MudTableSortLabel></MudTh>
+<MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.EndDate)">End date</MudTableSortLabel></MudTh>
+<MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.Status)">Status</MudTableSortLabel></MudTh>
+<MudTh><MudTableSortLabel SortBy="new Func<EmployeeLeaveRequestViewModel, object>(x=>x.ApproveStatus)">Approve status</MudTableSortLabel></MudTh>

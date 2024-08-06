@@ -1,0 +1,31 @@
+﻿@using OutOfOffice.BlazorUI.Components.Other
+@using OutOfOffice.Common.ViewModels.LeaveRequest
+@inject NavigationManager NavigationManager
+
+<MudTd DataLabel="Id">@Context.Id</MudTd>
+<MudTd DataLabel="Absence reason">@Context.AbsenceReason.ReasonTitle</MudTd>
+<MudTd DataLabel="Comment">@Context.Comment</MudTd>
+<MudTd DataLabel="Start date">@Context.StartDate.Value.ToShortDateString()</MudTd>
+<MudTd DataLabel="End date">@Context.EndDate.Value.ToShortDateString()</MudTd>
+<MudTd DataLabel="Status">
+    <span class="status-frame @StatusCssHelper.GetStatusCssClass(Context.Status.ToString())">@Context.Status</span>
+</MudTd>
+<MudTd DataLabel="Approve status">
+    <span class="status-frame @StatusCssHelper.GetStatusCssClass(Context.ApproveStatus.ToString())">@Context.ApproveStatus</span>
+</MudTd>
+
+@code {
+    [Parameter]
+    public EmployeeLeaveRequestViewModel Context { get; set; } = null!;
+
+    [Parameter]
+    public bool IsEditing { get; set; }
+
+    private void OpenDetails(int id)
+    {
+        if (!IsEditing)
+        {
+            NavigationManager.NavigateTo($"/leave-requests/{id}");
+        }
+    }
+}

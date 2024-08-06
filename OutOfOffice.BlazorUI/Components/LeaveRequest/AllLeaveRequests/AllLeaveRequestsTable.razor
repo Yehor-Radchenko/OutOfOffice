@@ -1,0 +1,67 @@
+﻿@using Microsoft.AspNetCore.Authorization
+@using OutOfOffice.BlazorUI.Services.Contracts
+@using OutOfOffice.Common.ViewModels.LeaveRequest
+@inject NavigationManager NavigationManager
+@inject ILeaveRequestService LeaveRequestService
+
+<MudTable T="TableLeaveRequestViewModel" Items="@allLeaveRequests" Hover="true" SortLabel="Sort By" 
+          Filter="new Func<TableLeaveRequestViewModel,bool>(FilterFunc)"
+          OnRowClick="@OnRowClickEventCallback" Style="margin-bottom:20px">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Leave requests</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString" Placeholder="Search (by Id or Comment)" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+
+    <HeaderContent>
+        <AllLeaveRequestsHeaderContent />
+    </HeaderContent>
+
+   <RowTemplate>
+        <AllLeaveRequestsRowTamplate Context="context" />
+   </RowTemplate>
+
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+@code {
+    private IEnumerable<TableLeaveRequestViewModel> allLeaveRequests = new List<TableLeaveRequestViewModel>();
+    private string searchString = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadLeaveRequestsAsync();
+    }
+
+    private async Task LoadLeaveRequestsAsync()
+    {
+        allLeaveRequests = await LeaveRequestService.GetAllLeaveRequestsAsync(searchString);
+    }
+
+    private bool FilterFunc(TableLeaveRequestViewModel element)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.Id.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.Comment.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.EmployeeId.ToString().Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+
+    private EventCallback<TableRowClickEventArgs<TableLeaveRequestViewModel>> OnRowClickEventCallback
+        => EventCallback.Factory.Create<TableRowClickEventArgs<TableLeaveRequestViewModel>>(this, OnRowClick);
+
+
+    private void OnRowClick(TableRowClickEventArgs<TableLeaveRequestViewModel> e)
+    {
+        if (e.Item != null)
+        {
+            NavigationManager.NavigateTo($"/leave-requests/{e.Item.Id}");
+        }
+    }
+}
