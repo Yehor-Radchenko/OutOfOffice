@@ -1,5 +1,6 @@
 ﻿@using OutOfOffice.BlazorUI.Components.Other
 @using OutOfOffice.Common.ViewModels.LeaveRequest
+@using OutOfOffice.Common.Enums
 @inject NavigationManager NavigationManager
 
 <MudTd DataLabel="Id">@Context.Id</MudTd>
@@ -11,7 +12,20 @@
     <span class="status-frame @StatusCssHelper.GetStatusCssClass(Context.Status.ToString())">@Context.Status</span>
 </MudTd>
 <MudTd DataLabel="Approve status">
-    <span class="status-frame @StatusCssHelper.GetStatusCssClass(Context.ApproveStatus.ToString())">@Context.ApproveStatus</span>
+    @if (string.IsNullOrEmpty(Context.ApproveStatus))
+    {
+        if (Context.Status == RequestStatus.Canceled.ToString())
+        {
+            <span class="status-frame @StatusCssHelper.GetStatusCssClass("Canceled")">Canceled</span>
+        }
+        {
+            <span class="status-frame @StatusCssHelper.GetStatusCssClass(RequestStatus.Pending.ToString())">@RequestStatus.Pending.ToString()</span>
+        }
+    }
+    else
+    {
+        <span class="status-frame @StatusCssHelper.GetStatusCssClass(Context.ApproveStatus.ToString())">@Context.ApproveStatus</span>
+    }
 </MudTd>
 
 @code {

@@ -12,7 +12,7 @@
                 "Canceled" => "canceled-status",
                 "Approved" => "approved-status",
                 "Rejected" => "rejected-status",
-                _ => string.Empty,
+                _ => "unknown-status",
             };
         }
     }

@@ -80,15 +80,10 @@ public class LeaveRequestService : IRequestService
 
         var leaveRequests = await query.ToListAsync();
 
-        var viewModelList = leaveRequests.Select(leaveRequest => 
+        var viewModelList = leaveRequests.Select(leaveRequest =>
         {
-            var approveStatus = RequestStatus.Pending.ToString();
-
-            if (leaveRequest.Status == RequestStatus.Canceled)
-            {
-                approveStatus = RequestStatus.Canceled.ToString();
-            }
-            else if (leaveRequest.ApprovalRequest != null)
+            string approveStatus = string.Empty;
+            if (leaveRequest.ApprovalRequest is not null)
             {
                 approveStatus = leaveRequest.ApprovalRequest.Status.ToString();
             }

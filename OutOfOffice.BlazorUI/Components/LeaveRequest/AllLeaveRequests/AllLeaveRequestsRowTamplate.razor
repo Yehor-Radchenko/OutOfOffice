@@ -13,13 +13,20 @@
     <span class="status-frame @StatusCssHelper.GetStatusCssClass(Context.Status.ToString())">@Context.Status</span>
 </MudTd>
 <MudTd DataLabel="Approval response Id">
-    @if (Context.ApprovalRequestId > 0)
+    @if (Context.ApprovalRequestId == 0)
     {
-        @Context.ApprovalRequestId
+        if (string.Equals(Context.Status, RequestStatus.Canceled.ToString()))
+        {
+            <span class="status-frame @StatusCssHelper.GetStatusCssClass("Canceled")">Canceled</span>
+        }
+        else
+        {
+            <span class="status-frame @StatusCssHelper.GetStatusCssClass(RequestStatus.Pending.ToString())">@RequestStatus.Pending.ToString()</span>
+        }
     }
     else
     {
-        <span class="status-frame @StatusCssHelper.GetStatusCssClass(RequestStatus.Pending.ToString())">@RequestStatus.Pending.ToString()</span>
+        <span>@Context.ApprovalRequestId</span>
     }
 </MudTd>
 

@@ -37,7 +37,7 @@
         {
             await LeaveRequestService.AddAsync(requestModel);
             this.Snackbar.Add("Your request been sent successfully.", Severity.Success);
-            NavigationManager.NavigateTo("/my-leave-requests");
+            NavigationManager.NavigateTo("/leave-requests");
         }
         catch (HttpRequestException ex)
         {
